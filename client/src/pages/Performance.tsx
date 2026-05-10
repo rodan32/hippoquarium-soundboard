@@ -52,16 +52,16 @@ const mainPerformanceCues: PerformanceCue[] = [
   {
     id: "catastrophe-begins",
     title: "Beginning of the Catastrophe",
-    subtitle: "Tornado Vase Swirl begins the damage",
+    subtitle: "A steady storm bed starts under the first visible damage",
     layout: "image",
     image: "/manus-storage/restoration_arc_scene_1_chaotic_wreckage_2087ae51.png",
-    soundIds: ["tornado", "lightning"],
+    soundIds: ["tornado"],
     mood: "chaos",
   },
   {
     id: "horrible-chaos",
     title: "Horrible Chaos",
-    subtitle: "Full-collapse rumble and pottery crash",
+    subtitle: "The storm grows into full collapse, then hands off into the video",
     layout: "image",
     image: "/manus-storage/restoration_arc_scene_2_absolute_armageddon_ad2795fb.png",
     soundIds: ["armageddon", "pottery-crash"],
@@ -70,10 +70,10 @@ const mainPerformanceCues: PerformanceCue[] = [
   {
     id: "kiss-restoration",
     title: "Kiss and Restoration",
-    subtitle: "The kiss lands and the restoration begins",
+    subtitle: "The video resolves into the restored scenic image and gentle repair music",
     layout: "image",
     image: "/manus-storage/restoration_arc_scene_3_hippo_kiss_restoration_begins_c4369f89.png",
-    soundIds: ["laurel-bloom"],
+    soundIds: ["restoration-loop"],
     mood: "restoration",
   },
   {
@@ -352,18 +352,18 @@ export default function Performance() {
 
     if (options.playTransition) {
       setShowTransition(true);
-      setPreviousCue(null);
-      setLastAction("Playing chaos-to-restoration transition video.");
-      stopAllSounds({ fadeOutSeconds: 0.9, announce: false });
+      setPreviousCue(mainPerformanceCues[cueIndex]);
+      setLastAction("Chaos remains visible while the restoration video carries the scene into the kiss.");
+      stopAllSounds({ fadeOutSeconds: 1.35, announce: false });
       const kissCue = cueMap.get("hippo-kiss");
-      if (kissCue) fireSoundCue(kissCue);
+      window.setTimeout(() => { if (kissCue) fireSoundCue(kissCue); }, 420);
       transitionTimerRef.current = window.setTimeout(() => {
-        setPreviousCue(null);
+        setPreviousCue(mainPerformanceCues[cueIndex]);
         setCueIndex(bounded);
         setIsSceneSettling(true);
         setShowTransition(false);
-        playPerformanceCue(mainPerformanceCues[bounded], { fadeOutSeconds: 0.95, startDelayMs: 180 });
-        settleTimerRef.current = window.setTimeout(() => setIsSceneSettling(false), 1200);
+        playPerformanceCue(mainPerformanceCues[bounded], { fadeOutSeconds: 1.15, startDelayMs: 320 });
+        settleTimerRef.current = window.setTimeout(() => setIsSceneSettling(false), 1500);
       }, 7600);
       return;
     }
@@ -504,8 +504,9 @@ export default function Performance() {
         .storm-active .storm-flash { animation: stormFlash 3.2s infinite steps(1, end); }
         .armageddon-active .storm-flash { animation-duration: 2.2s; }
         .storm-active .storm-dust { opacity: .42; animation: stormDrift 9s linear infinite; }
-        .transitioning-restoration .storm-flash, .transitioning-restoration .storm-dust { animation: none; opacity: 0; }
-        .transitioning-restoration .magic-glow { opacity: .42; animation: magicBreathe 4.2s ease-in-out infinite; }
+        .transitioning-restoration .storm-flash { animation: stormFlash 3.8s infinite steps(1, end); opacity: .16; }
+        .transitioning-restoration .storm-dust { opacity: .2; animation: stormDrift 13s linear infinite; }
+        .transitioning-restoration .magic-glow { opacity: .5; animation: magicBreathe 4.2s ease-in-out infinite; }
         .magic-active .magic-glow, .romance-active .magic-glow { opacity: .56; animation: magicBreathe 4.2s ease-in-out infinite; }
         .romance-active .magic-glow { opacity: .72; }
         .temptation-active .magic-glow { opacity: .18; animation: magicBreathe 5.4s ease-in-out infinite; }
@@ -546,18 +547,33 @@ export default function Performance() {
           background: radial-gradient(circle at 50% 42%, rgba(243,223,181,.16), transparent 36%, rgba(0,0,0,.2) 100%);
           animation: settleWash 1100ms ease-out forwards;
         }
-        .transition-video { animation: sceneFadeIn 700ms ease-out both; }
+        .transition-video {
+          animation: videoFloatIn 1100ms ease-out both;
+          filter: drop-shadow(0 0 42px rgba(220,174,89,.24));
+        }
+        .transition-video-frame::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          z-index: 1;
+          pointer-events: none;
+          background: radial-gradient(circle at 50% 46%, transparent 0 55%, rgba(0,0,0,.38) 100%);
+        }
         @keyframes magicBreathe {
           0%, 100% { filter: blur(24px); transform: scale(1); }
           50% { filter: blur(34px); transform: scale(1.035); }
         }
+        @keyframes videoFloatIn {
+          from { opacity: 0; filter: blur(4px) saturate(.9); transform: scale(1.006); }
+          to { opacity: 1; filter: blur(0) saturate(1); transform: scale(1); }
+        }
         @keyframes sceneFadeIn {
-          from { opacity: 0; filter: blur(8px) saturate(.86); transform: scale(1.012); }
+          from { opacity: .18; filter: blur(5px) saturate(.9); transform: scale(1.006); }
           to { opacity: 1; filter: blur(0) saturate(1); transform: scale(1); }
         }
         @keyframes sceneFadeOut {
           from { opacity: 1; filter: blur(0) saturate(1); transform: scale(1); }
-          to { opacity: 0; filter: blur(10px) saturate(.72); transform: scale(.992); }
+          to { opacity: .22; filter: blur(6px) saturate(.78); transform: scale(.996); }
         }
         @keyframes settleWash {
           0% { opacity: .92; }
@@ -575,14 +591,19 @@ export default function Performance() {
       <div className={`absolute inset-0 z-0 bg-black ${isSceneSettling ? "scene-settling" : ""}`}>
         {previousCue && !showTransition && <Backdrop cue={previousCue} previous />}
         {showTransition ? (
-          <video
-            key="restoration-transition"
-            src={transitionVideo}
-            autoPlay
-            muted
-            playsInline
-            className="transition-video absolute inset-0 h-full w-full bg-black object-contain"
-          />
+          <>
+            <Backdrop key={`${currentCue.id}-under-video`} cue={currentCue} />
+            <div className="transition-video-frame absolute inset-0 grid place-items-center bg-transparent">
+              <video
+                key="restoration-transition"
+                src={transitionVideo}
+                autoPlay
+                muted
+                playsInline
+                className="transition-video relative z-0 h-full w-full bg-transparent object-contain"
+              />
+            </div>
+          </>
         ) : (
           <Backdrop key={currentCue.id} cue={currentCue} />
         )}
@@ -678,7 +699,7 @@ export default function Performance() {
           </div>
 
           <p className="mt-3 text-xs text-[rgba(247,224,185,.58)]">
-            Controls: Space / Right Arrow advances the main scene, Left Arrow backs up, I clears the active insert, B toggles blackout, S stops sounds, O hides or shows this overlay, Esc clears an insert or exits. The Soundboard can separately send main-scene jumps and temporary insert toggles.
+            Controls: Space / Right Arrow advances the main scenery. Chaos flows into the video, then dissolves into kiss/restoration without a blackout. Left Arrow backs up, I clears the active insert, B toggles emergency blackout, S stops sounds, O hides or shows this overlay, Esc clears an insert or exits.
           </p>
         </div>
       </div>

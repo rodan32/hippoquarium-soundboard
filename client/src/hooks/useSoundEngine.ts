@@ -240,30 +240,23 @@ export function useSoundEngine(masterVolume: number) {
         if (stopped) return;
         const now = ctx.currentTime;
         if (kind === "tornado") {
-          playSweep(92, 680, 2.15, 0.105, now, "sawtooth");
-          playSweep(210, 1020, 1.35, 0.045, now + 0.38, "square");
-          playNoiseBurst(1.85, 540, 0.16, now + 0.02, "bandpass", 0.9);
-          playNoiseBurst(1.0, 1600, 0.09, now + 0.78, "highpass", 0.55);
-          playTone(58, 1.15, "triangle", 0.07, now + 0.05);
-          timers.push(window.setTimeout(schedule, 1680));
+          playNoiseBurst(2.6, 520, 0.09, now + 0.02, "bandpass", 0.85);
+          playNoiseBurst(1.8, 1450, 0.035, now + 0.72, "highpass", 0.5);
+          playTone(58, 1.7, "sine", 0.035, now + 0.05);
+          timers.push(window.setTimeout(schedule, 2360));
         }
         if (kind === "rumble") {
-          playTone(34, 2.6, "sine", 0.24, now);
-          playTone(51, 2.35, "triangle", 0.17, now + 0.04);
-          playSweep(72, 38, 2.4, 0.12, now + 0.02, "sawtooth");
-          playNoiseBurst(2.25, 82, 0.32, now, "lowpass", 0.7);
-          playNoiseBurst(0.65, 420, 0.11, now + 1.28, "bandpass", 1.4);
-          timers.push(window.setTimeout(schedule, 2050));
+          playTone(38, 2.9, "sine", 0.16, now);
+          playNoiseBurst(2.7, 86, 0.22, now, "lowpass", 0.72);
+          playNoiseBurst(0.7, 360, 0.055, now + 1.35, "bandpass", 1.1);
+          timers.push(window.setTimeout(schedule, 2450));
         }
         if (kind === "restoration") {
-          playTone(261.63, 1.15, "triangle", 0.05, now);
-          playTone(523.25, 0.72, "sine", 0.095, now + 0.04);
-          playTone(659.25, 0.86, "sine", 0.085, now + 0.19);
-          playTone(783.99, 1.0, "triangle", 0.075, now + 0.38);
-          playTone(1046.5, 0.9, "sine", 0.04, now + 0.62);
-          playSweep(240, 1280, 1.9, 0.07, now + 0.08, "triangle");
-          playNoiseBurst(1.15, 2900, 0.045, now + 0.12, "highpass", 0.7);
-          timers.push(window.setTimeout(schedule, 1520));
+          playTone(261.63, 1.8, "triangle", 0.032, now);
+          playTone(392, 1.6, "sine", 0.04, now + 0.16);
+          playTone(523.25, 1.5, "sine", 0.035, now + 0.36);
+          playNoiseBurst(1.45, 2600, 0.018, now + 0.18, "highpass", 0.7);
+          timers.push(window.setTimeout(schedule, 2150));
         }
         if (kind === "preshow") {
           playTone(110, 3.3, "sine", 0.045, now);
@@ -292,8 +285,8 @@ export function buildCues(): Cue[] {
     {
       id: "tornado",
       number: "Q1",
-      name: "Tornado Vase Swirl",
-      subtitle: "Looping comic chaos wind with real storm bed",
+      name: "Storm Bed",
+      subtitle: "Continuous storm atmosphere for the catastrophe setup",
       category: "chaos",
       icon: "wind",
       loop: true,
@@ -302,26 +295,23 @@ export function buildCues(): Cue[] {
     {
       id: "lightning",
       number: "Q2",
-      name: "Lightning Crack",
-      subtitle: "Stock thunder slam plus mythic shock hit",
+      name: "Thunder Strike",
+      subtitle: "Single thunder accent for stage emphasis",
       category: "chaos",
       icon: "bolt",
       builder: (engine) => {
         const now = engine.ctx.currentTime;
         engine.playStock("closeThunder", 1.0);
         engine.playStock("impactThunder", 0.72, 0.045);
-        engine.playNoiseBurst(0.12, 4800, 0.58, now, "highpass", 0.5);
-        engine.playNoiseBurst(0.26, 2500, 0.44, now + 0.018, "bandpass", 2.2);
-        engine.playTone(74, 0.52, "square", 0.28, now + 0.035);
-        engine.playTone(148, 0.22, "sawtooth", 0.16, now + 0.055);
-        engine.playNoiseBurst(0.86, 170, 0.28, now + 0.09, "lowpass", 0.8);
+        engine.playNoiseBurst(0.2, 3600, 0.22, now, "highpass", 0.55);
+        engine.playNoiseBurst(0.9, 150, 0.12, now + 0.08, "lowpass", 0.8);
       },
     },
     {
       id: "armageddon",
       number: "Q3",
-      name: "Armageddon Rumble",
-      subtitle: "Looping full-collapse bed with apocalypse brass",
+      name: "Collapse Rumble",
+      subtitle: "Low continuous collapse bed for horrible chaos",
       category: "chaos",
       icon: "crash",
       loop: true,
@@ -330,27 +320,23 @@ export function buildCues(): Cue[] {
     {
       id: "pottery-crash",
       number: "Q4",
-      name: "Pottery Crash",
-      subtitle: "Real crash texture with comic shards",
+      name: "Pottery Break",
+      subtitle: "Short ceramic crash accent",
       category: "impact",
       icon: "crash",
       builder: (engine) => {
         const now = engine.ctx.currentTime;
-        engine.playStock("collapsingStructure", 0.96);
-        engine.playStock("cinematicImpact", 0.44, 0.02);
-        engine.playTone(62, 0.5, "sine", 0.18, now);
-        [0, 0.026, 0.065, 0.12, 0.19, 0.31].forEach((offset, index) => {
-          engine.playNoiseBurst(0.18 + index * 0.035, 1150 + index * 610, 0.28 - index * 0.025, now + offset, "bandpass", 1.7);
-          engine.playTone(180 + index * 91, 0.14, index % 2 ? "square" : "triangle", 0.09, now + offset);
-        });
-        engine.playNoiseBurst(0.62, 520, 0.12, now + 0.16, "lowpass", 1.0);
+        engine.playStock("collapsingStructure", 0.82);
+        engine.playStock("cinematicImpact", 0.28, 0.02);
+        engine.playTone(62, 0.42, "sine", 0.09, now);
+        engine.playNoiseBurst(0.55, 780, 0.1, now + 0.12, "bandpass", 1.0);
       },
     },
     {
       id: "column-thud",
       number: "Q5",
-      name: "Column Thud",
-      subtitle: "Grounded stomp and limestone impact",
+      name: "Stone Impact",
+      subtitle: "Heavy scenic thud accent",
       category: "impact",
       icon: "crash",
       builder: (engine) => {
@@ -366,27 +352,24 @@ export function buildCues(): Cue[] {
     {
       id: "hippo-kiss",
       number: "Q6",
-      name: "Hippo Kiss Sparkle",
-      subtitle: "Big comic kiss into romantic magic ping",
+      name: "Kiss Cue",
+      subtitle: "Comic kiss that starts the restoration video moment",
       category: "magic",
       icon: "heart",
       builder: (engine) => {
         const now = engine.ctx.currentTime;
-        engine.playStock("comicKiss", 1.0);
-        engine.playStock("orchestraTransition", 0.42, 0.12);
-        engine.playTone(196, 0.75, "triangle", 0.055, now + 0.05);
-        [523.25, 659.25, 783.99, 1046.5, 1318.51].forEach((freq, index) => {
-          engine.playTone(freq, 0.58 + index * 0.08, index % 2 ? "triangle" : "sine", 0.12 - index * 0.01, now + 0.11 + index * 0.075);
+        engine.playStock("comicKiss", 0.88);
+        engine.playStock("orchestraTransition", 0.32, 0.28);
+        [523.25, 659.25, 783.99].forEach((freq, index) => {
+          engine.playTone(freq, 0.72, "sine", 0.055, now + 0.16 + index * 0.12);
         });
-        engine.playSweep(620, 1760, 1.05, 0.075, now + 0.18, "triangle");
-        engine.playNoiseBurst(0.65, 3600, 0.04, now + 0.2, "highpass", 0.7);
       },
     },
     {
       id: "restoration-loop",
       number: "Q7",
-      name: "Kintsugi Restoration",
-      subtitle: "Looping gold repair magic with orchestral lift",
+      name: "Restoration Underscore",
+      subtitle: "Gentle looping repair music after the video",
       category: "magic",
       icon: "sparkles",
       loop: true,
@@ -395,45 +378,40 @@ export function buildCues(): Cue[] {
     {
       id: "laurel-bloom",
       number: "Q8",
-      name: "Laurel Bloom",
-      subtitle: "Gentle reveal shimmer with cinematic swell",
+      name: "Warm Reveal",
+      subtitle: "Soft shimmer for photo inserts and restored scenery",
       category: "romance",
       icon: "sparkles",
       builder: (engine) => {
         const now = engine.ctx.currentTime;
-        engine.playStock("orchestraTransition", 0.56);
-        engine.playTone(196, 1.6, "triangle", 0.045, now);
-        [392, 523.25, 659.25, 783.99, 987.77, 1174.66].forEach((freq, index) => {
-          engine.playTone(freq, 1.0, index % 2 ? "triangle" : "sine", 0.08, now + index * 0.105);
+        engine.playStock("orchestraTransition", 0.42);
+        [392, 523.25, 659.25].forEach((freq, index) => {
+          engine.playTone(freq, 1.15, "sine", 0.045, now + index * 0.16);
         });
-        engine.playSweep(360, 1180, 1.55, 0.055, now + 0.12, "triangle");
-        engine.playNoiseBurst(1.35, 2750, 0.052, now + 0.15, "highpass", 0.65);
+        engine.playNoiseBurst(1.05, 2750, 0.02, now + 0.18, "highpass", 0.65);
       },
     },
     {
       id: "tiny-triumph",
       number: "Q9",
-      name: "Tiny Triumph Fanfare",
-      subtitle: "Trumpet finish plus restored façade button",
+      name: "Final Bow Fanfare",
+      subtitle: "Short closing fanfare for the finale card",
       category: "finale",
       icon: "music",
       builder: (engine) => {
         const now = engine.ctx.currentTime;
         const melody = [392, 523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
-        engine.playStock("trumpetFanfare", 1.0);
-        engine.playStock("orchestraTransition", 0.42, 0.58);
-        melody.forEach((freq, index) => {
-          engine.playTone(freq, 0.38, index % 2 ? "triangle" : "square", 0.095, now + index * 0.145);
-          engine.playTone(freq / 2, 0.42, "triangle", 0.045, now + index * 0.145);
+        engine.playStock("trumpetFanfare", 0.9);
+        engine.playStock("orchestraTransition", 0.28, 0.58);
+        melody.slice(0, 5).forEach((freq, index) => {
+          engine.playTone(freq, 0.34, "triangle", 0.055, now + index * 0.16);
         });
-        engine.playNoiseBurst(0.72, 1850, 0.052, now + 0.78, "bandpass", 1.2);
-        engine.playTone(196, 1.05, "sine", 0.065, now + 0.62);
       },
     },
     {
       id: "preshow-hum",
       number: "Q0",
-      name: "Preshow Urn Hum",
+      name: "Preshow Atmosphere",
       subtitle: "Quiet looping house texture",
       category: "utility",
       icon: "music",

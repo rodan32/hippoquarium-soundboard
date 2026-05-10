@@ -134,3 +134,19 @@
 - [x] Preserve the corrected crude photo-based Kathleen Sirens gag as an insert, not as a permanent scene replacement.
 - [x] Update Soundboard controls to separate main scene stepping from insert trigger/dismiss controls.
 - [x] Validate the restored scene system with `pnpm run check` and `pnpm run build`, then checkpoint and push.
+
+## Sound Cleanup and Theatrical Flow Correction
+
+- [x] Audit current sound cues and remove or rename leftover weird original cues that no longer serve the play.
+- [x] Rebuild the soundboard cue list around coherent stage needs such as low rumble, rising chaos, crash accents, silence/hold, video underscoring, and restoration swell.
+- [x] Rework the main projection sequence so chaos leads smoothly into the video moment and then resolves into the kiss/restoration scene.
+- [x] Preserve the video as the successful centerpiece while correcting the scenes immediately before and after it.
+- [x] Keep temporary inserts available without disrupting the main scenery flow.
+- [x] Validate the corrected sound and scenery flow with `pnpm run check` and `pnpm run build`, then checkpoint and push.
+
+## No-Blackout Transition Refinement
+
+- [x] Avoid fades to black between scenery states except when the operator explicitly presses Blackout.
+- [x] Replace abrupt chaos, video, and kiss/restoration scene shifts with cross-dissolves, lighting changes, and layered scenic transformations.
+- [x] Make the video feel embedded in the stage sequence rather than a separate hard-cut projection mode.
+- [x] Keep restoration visually connected to the preceding chaos and video, resolving the same world rather than switching to an unrelated scene.
