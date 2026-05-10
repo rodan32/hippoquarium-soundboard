@@ -17,7 +17,7 @@ type PerformanceCue = {
   id: string;
   title: string;
   subtitle: string;
-  layout: "image" | "title" | "epigraph" | "photo-duet" | "lithuania" | "queen" | "sirens" | "candid" | "finale";
+  layout: "image" | "title" | "photo-duet" | "lithuania" | "queen" | "sirens" | "candid" | "finale";
   image?: string;
   images?: string[];
   soundIds: string[];
@@ -38,35 +38,27 @@ const performanceCues: PerformanceCue[] = [
     mood: "card",
   },
   {
-    id: "epigraph-card",
-    title: "Epigraph Card",
-    subtitle: "The watch was always a watch.",
-    layout: "epigraph",
+    id: "candid-real-love",
+    title: "Real Love",
+    subtitle: "Photo insert",
+    layout: "candid",
+    images: ["/manus-storage/real-love-candid_291ec79c.webp"],
     soundIds: [],
-    mood: "card",
+    mood: "romance",
   },
   {
-    id: "calm-entrance",
-    title: "Calm Entrance",
-    subtitle: "House-open urn panel and quiet preshow hum",
-    layout: "image",
-    image: urnImage,
-    soundIds: ["preshow-hum"],
-    mood: "calm",
-  },
-  {
-    id: "fourteen-days",
-    title: "Fourteen Days Without You",
-    subtitle: "Domestic survival photo insert for the absent queen beat",
-    layout: "photo-duet",
-    images: ["/manus-storage/chores-laundry-basement_8746936e.webp", "/manus-storage/chores-outdoor-dishes_20ffaef0.webp"],
+    id: "queen-returns",
+    title: "Queen Returns",
+    subtitle: "Photo insert",
+    layout: "queen",
+    images: ["/manus-storage/young-love-bench_02e96a39.webp", "/manus-storage/real-love-candid_291ec79c.webp"],
     soundIds: [],
-    mood: "domestic",
+    mood: "romance",
   },
   {
     id: "lithuania-dispatch",
-    title: "Lithuania Dispatch",
-    subtitle: "Brief travel-slide cue for the Watchman correction and Sirens setup",
+    title: "Lithuania",
+    subtitle: "Photo insert",
     layout: "lithuania",
     images: [
       "/manus-storage/lithuania-airport_3d8a431f.webp",
@@ -78,67 +70,22 @@ const performanceCues: PerformanceCue[] = [
     mood: "dispatch",
   },
   {
+    id: "fourteen-days",
+    title: "14 Days",
+    subtitle: "Photo insert",
+    layout: "photo-duet",
+    images: ["/manus-storage/chores-laundry-basement_8746936e.webp", "/manus-storage/chores-outdoor-dishes_20ffaef0.webp"],
+    soundIds: [],
+    mood: "domestic",
+  },
+  {
     id: "sirens-temptation",
-    title: "Sirens Temptation",
+    title: "Sirens",
     subtitle: "Projected Kathleen only; live Sirens interact with the open screen space",
     layout: "sirens",
     image: kathleenSirensImage,
     soundIds: [],
     mood: "temptation",
-  },
-  {
-    id: "chaotic-wreckage",
-    title: "Chaotic Wreckage",
-    subtitle: "Tornado Vase Swirl with lightning shock hit",
-    layout: "image",
-    image: "/manus-storage/restoration_arc_scene_1_chaotic_wreckage_2087ae51.png",
-    soundIds: ["tornado", "lightning"],
-    mood: "chaos",
-  },
-  {
-    id: "absolute-armageddon",
-    title: "Absolute Armageddon",
-    subtitle: "Full-collapse rumble and pottery crash",
-    layout: "image",
-    image: "/manus-storage/restoration_arc_scene_2_absolute_armageddon_ad2795fb.png",
-    soundIds: ["armageddon", "pottery-crash"],
-    mood: "armageddon",
-  },
-  {
-    id: "queen-returns",
-    title: "Queen Returns",
-    subtitle: "Soft human-photo summons before the kiss restores the myth",
-    layout: "queen",
-    images: ["/manus-storage/young-love-bench_02e96a39.webp", "/manus-storage/real-love-candid_291ec79c.webp"],
-    soundIds: [],
-    mood: "romance",
-  },
-  {
-    id: "golden-repair-afterglow",
-    title: "Golden Repair Afterglow",
-    subtitle: "The kiss has landed; let the restoration settle without looping shimmer",
-    layout: "image",
-    image: "/manus-storage/restoration_arc_scene_3_hippo_kiss_restoration_begins_c4369f89.png",
-    soundIds: ["laurel-bloom"],
-    mood: "restoration",
-  },
-  {
-    id: "fully-restored-romance",
-    title: "Fully Restored Romance",
-    subtitle: "Quiet romantic finale with tiny triumph fanfare",
-    layout: "image",
-    image: "/manus-storage/restoration_arc_scene_4_fully_restored_romance_25131ddc.png",
-    soundIds: ["tiny-triumph"],
-    mood: "romance",
-  },
-  {
-    id: "candid-real-love",
-    title: "Candid Real Love Overlay",
-    subtitle: "Optional tired-and-real photo cameo over the restored language",
-    layout: "candid",
-    images: ["/manus-storage/real-love-candid_291ec79c.webp"],
-    soundIds: [],
-    mood: "romance",
   },
   {
     id: "finale-card",
@@ -149,7 +96,6 @@ const performanceCues: PerformanceCue[] = [
     mood: "romance",
   },
 ];
-
 function moodClass(mood: PerformanceCue["mood"]) {
   if (mood === "chaos") return "storm-active";
   if (mood === "armageddon") return "storm-active armageddon-active";
@@ -188,27 +134,12 @@ function Backdrop({ cue, previous = false }: { cue: PerformanceCue; previous?: b
     );
   }
 
-  if (cue.layout === "epigraph") {
-    return (
-      <div className={`${shellClass} grid place-items-center bg-[radial-gradient(circle_at_50%_50%,rgba(220,174,89,.12),transparent_34%),linear-gradient(180deg,#090706,#17100c_55%,#050403)]`}>
-        <div className="max-w-5xl px-12 text-center">
-          <p className="font-display text-xs uppercase tracking-[.52em] text-[rgba(220,174,89,.78)]">Watchman Hello</p>
-          <blockquote className="mt-10 font-display text-[clamp(3.2rem,8vw,7.4rem)] leading-[.98] text-[var(--limestone)]">“The watch was always a watch.”</blockquote>
-          <p className="mx-auto mt-10 max-w-2xl text-lg uppercase tracking-[.28em] text-[rgba(247,224,185,.48)]">Begin when the room is listening.</p>
-        </div>
-      </div>
-    );
-  }
 
   if (cue.layout === "photo-duet") {
     const [first, second] = cue.images ?? [];
     return (
       <div className={`${shellClass} bg-[radial-gradient(circle_at_20%_20%,rgba(220,174,89,.16),transparent_32%),linear-gradient(135deg,#17100b,#2b160d_50%,#090706)] p-[5vw]`}>
-        <div className="absolute inset-x-0 top-[7%] z-10 text-center">
-          <p className="font-display text-xs uppercase tracking-[.46em] text-[var(--gold)]">Fourteen Days Without You</p>
-          <h2 className="mt-3 font-display text-[clamp(2.6rem,5.2vw,5.5rem)] text-[var(--limestone)]">Domestic Survival Evidence</h2>
-        </div>
-        <div className="absolute inset-x-[7%] bottom-[8%] top-[31%] grid grid-cols-2 gap-[4vw]">
+        <div className="absolute inset-[7%] grid grid-cols-2 gap-[4vw]">
           {[first, second].map((src, index) => (
             <figure key={src} className={`relative overflow-hidden rounded-[1.8rem] border border-[rgba(236,190,120,.48)] bg-black/40 shadow-[0_34px_90px_rgba(0,0,0,.52)] ${index === 0 ? "-rotate-2" : "rotate-2"}`}>
               <img src={src} alt={index === 0 ? "Chores photo insert one" : "Chores photo insert two"} className="h-full w-full object-cover opacity-85 sepia-[.18]" />
@@ -229,12 +160,8 @@ function Backdrop({ cue, previous = false }: { cue: PerformanceCue; previous?: b
           <figure className="overflow-hidden rounded-[2rem] border border-[rgba(236,190,120,.45)] bg-black/35 shadow-2xl">
             <img src={images[1]} alt="Lithuania meadow scenic insert" className="h-full w-full object-cover opacity-90" />
           </figure>
-          <div className="grid grid-rows-[auto_1fr_1fr] gap-[2vw]">
-            <div className="rounded-[1.7rem] border border-[rgba(236,190,120,.38)] bg-[rgba(8,10,7,.72)] p-[2vw] shadow-2xl">
-              <p className="font-display text-xs uppercase tracking-[.42em] text-[var(--gold)]">Dispatch from Lithuania</p>
-              <h2 className="mt-3 font-display text-[clamp(2.2rem,4.2vw,4.8rem)] leading-[.9] text-[var(--limestone)]">A correction, a temptation, a meadow.</h2>
-            </div>
-            {images.filter((_, index) => index !== 1).slice(0, 2).map((src, index) => (
+          <div className="grid grid-rows-3 gap-[2vw]">
+            {images.filter((_, index) => index !== 1).slice(0, 3).map((src, index) => (
               <figure key={src} className="overflow-hidden rounded-[1.5rem] border border-[rgba(236,190,120,.36)] bg-black/35 shadow-xl">
                 <img src={src} alt={`Lithuania scenic insert ${index + 1}`} className="h-full w-full object-cover opacity-86" />
               </figure>
@@ -250,17 +177,13 @@ function Backdrop({ cue, previous = false }: { cue: PerformanceCue; previous?: b
     return (
       <div className={`${shellClass} bg-[radial-gradient(circle_at_50%_48%,rgba(220,174,89,.18),transparent_38%),linear-gradient(135deg,#080604,#24140d_58%,#050403)]`}>
         <img src={urnImage} alt="Urn texture behind Queen Returns" className="absolute inset-0 h-full w-full object-contain opacity-[.14]" />
-        <div className="absolute inset-[8%] grid grid-cols-[.9fr_1.1fr] items-center gap-[4vw]">
+        <div className="absolute inset-[8%] grid grid-cols-[.95fr_1.05fr] items-center gap-[4vw]">
           <figure className="overflow-hidden rounded-[2rem] border border-[rgba(236,190,120,.5)] bg-black/40 shadow-2xl -rotate-2">
-            <img src={young} alt="Young couple scenic insert" className="h-[62vh] w-full object-cover opacity-82 sepia-[.12]" />
+            <img src={young} alt="Young couple scenic insert" className="h-[70vh] w-full object-cover opacity-86 sepia-[.12]" />
           </figure>
-          <div>
-            <p className="font-display text-xs uppercase tracking-[.46em] text-[var(--gold)]">The Queen Returns</p>
-            <h2 className="mt-5 font-display text-[clamp(3.2rem,6.4vw,7rem)] leading-[.86] text-[var(--limestone)]">Not a spell. A summons.</h2>
-            <figure className="mt-8 max-w-xl overflow-hidden rounded-[1.5rem] border border-[rgba(236,190,120,.35)] bg-black/35 shadow-xl rotate-1">
-              <img src={candid} alt="Later candid couple scenic insert" className="h-48 w-full object-cover opacity-70" />
-            </figure>
-          </div>
+          <figure className="overflow-hidden rounded-[1.7rem] border border-[rgba(236,190,120,.35)] bg-black/35 shadow-xl rotate-1">
+            <img src={candid} alt="Later candid couple scenic insert" className="h-[52vh] w-full object-cover opacity-76" />
+          </figure>
         </div>
       </div>
     );
@@ -272,8 +195,7 @@ function Backdrop({ cue, previous = false }: { cue: PerformanceCue; previous?: b
       <div className={`${shellClass} grid place-items-center bg-[radial-gradient(circle_at_50%_46%,rgba(220,174,89,.18),transparent_38%),linear-gradient(135deg,#060504,#21130c_50%,#050403)]`}>
         <img src="/manus-storage/restoration_arc_scene_4_fully_restored_romance_25131ddc.png" alt="Restored urn background" className="absolute inset-0 h-full w-full object-contain opacity-45" />
         <figure className="relative w-[min(64vw,980px)] overflow-hidden rounded-[2rem] border border-[rgba(236,190,120,.5)] bg-black/55 p-4 shadow-[0_42px_120px_rgba(0,0,0,.65)]">
-          <img src={candid} alt="Candid real love scenic insert" className="max-h-[62vh] w-full rounded-[1.3rem] object-cover opacity-82 sepia-[.08]" />
-          <figcaption className="mt-5 text-center font-display text-[clamp(1.5rem,3vw,3rem)] text-[var(--limestone)]">something later, something tired and real</figcaption>
+          <img src={candid} alt="Candid real love scenic insert" className="max-h-[72vh] w-full rounded-[1.3rem] object-cover opacity-86 sepia-[.08]" />
         </figure>
       </div>
     );
@@ -311,7 +233,6 @@ export default function Performance() {
   const { ensureEngine, masterRef } = useSoundEngine(masterVolume);
   const currentCue = performanceCues[cueIndex];
   const nextCue = performanceCues[Math.min(performanceCues.length - 1, cueIndex + 1)];
-  const queenReturnsIndex = performanceCues.findIndex((cue) => cue.id === "queen-returns");
 
   const stopAllSounds = useCallback((options: { fadeOutSeconds?: number; announce?: boolean } = {}) => {
     const engine = ensureEngine();
@@ -389,12 +310,8 @@ export default function Performance() {
   }, [cueIndex, cueMap, fireSoundCue, playPerformanceCue, stopAllSounds]);
 
   const advance = useCallback(() => {
-    if (cueIndex === queenReturnsIndex) {
-      goToCue(cueIndex + 1, { playTransition: true });
-      return;
-    }
     goToCue(cueIndex + 1);
-  }, [cueIndex, goToCue, queenReturnsIndex]);
+  }, [cueIndex, goToCue]);
 
   const back = useCallback(() => {
     goToCue(cueIndex - 1);

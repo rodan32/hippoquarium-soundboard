@@ -32,14 +32,13 @@ type ProjectionStateJump = {
 };
 
 const projectionStateJumps: ProjectionStateJump[] = [
-  { index: 0, label: "Title Card", shortLabel: "Title", note: "house-open" },
-  { index: 1, label: "Epigraph Card", shortLabel: "Epigraph", note: "watch line" },
-  { index: 3, label: "Fourteen Days", shortLabel: "14 Days", note: "chores photos" },
-  { index: 4, label: "Lithuania Dispatch", shortLabel: "Lithuania", note: "travel insert" },
-  { index: 5, label: "Sirens Temptation", shortLabel: "Sirens", note: "project Kathleen only" },
-  { index: 8, label: "Queen Returns", shortLabel: "Queen", note: "summons" },
-  { index: 11, label: "Candid Real Love", shortLabel: "Real Love", note: "optional cameo" },
-  { index: 12, label: "Finale Card", shortLabel: "Finale", note: "bows" },
+  { index: 0, label: "Title Card", shortLabel: "Title", note: "opening" },
+  { index: 1, label: "Real Love", shortLabel: "Real Love", note: "photo" },
+  { index: 2, label: "Queen Returns", shortLabel: "Queen", note: "photo" },
+  { index: 3, label: "Lithuania", shortLabel: "Lithuania", note: "photos" },
+  { index: 4, label: "14 Days", shortLabel: "14 Days", note: "chores" },
+  { index: 5, label: "Sirens", shortLabel: "Sirens", note: "Kathleen" },
+  { index: 6, label: "Finale Card", shortLabel: "Finale", note: "bows" },
 ];
 
 function CueIcon({ icon }: { icon: Cue["icon"] }) {
@@ -162,7 +161,7 @@ export default function Home() {
               <p className="font-display text-xs uppercase tracking-[0.33em] text-[var(--gold)]">Hippoquarium</p>
               <h1 className="mt-2 font-display text-3xl leading-none text-[var(--limestone)]">Soundboard</h1>
               <p className="mt-3 text-sm leading-6 text-[rgba(247,224,185,0.72)]">
-                A compact cue board for title cards, family-photo inserts, live-Sirens projection beats, chaos, hippo-kiss magic, and the restored romantic finale.
+                A compact cue board for title and finale cards, silent photo inserts, the projected-Kathleen Sirens beat, and manual sound effects.
               </p>
             </div>
 
@@ -244,10 +243,10 @@ export default function Home() {
             <div className="mb-6 flex flex-col justify-between gap-4 border-b border-[rgba(236,190,120,0.2)] pb-5 md:flex-row md:items-end">
               <div>
                 <p className="font-display text-xs uppercase tracking-[0.35em] text-[var(--gold)]">Ancient vase cue console</p>
-                <h2 className="mt-2 font-display text-4xl leading-tight text-[var(--limestone)] md:text-5xl">Cue the mythic disaster. Restore it with love.</h2>
+                <h2 className="mt-2 font-display text-4xl leading-tight text-[var(--limestone)] md:text-5xl">Cue the photos, the Sirens, and the finale.</h2>
               </div>
               <div className="rounded-2xl border border-[rgba(236,190,120,0.25)] bg-[rgba(0,0,0,0.22)] px-4 py-3 text-sm text-[rgba(247,224,185,0.68)] md:max-w-xs">
-                Looping cues toggle on/off. One-shot cues fire immediately. The projector panel can also jump to script-specific backdrop states.
+                Looping cues toggle on/off. One-shot cues fire immediately. The projector jumps now follow the simplified show order.
               </div>
             </div>
 

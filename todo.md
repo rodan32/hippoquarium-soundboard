@@ -110,3 +110,10 @@
 - [x] Revise the Sirens temptation concept so the projection shows only animated Kathleen as a screen character, while the Sirens remain live actors interacting with her.
 - [x] Avoid drawing cartoon Sirens into the projection asset; reserve screen space and timing for live performers to address the projected Kathleen.
 - [x] Give the projected Kathleen state a readable stage-partner composition, likely centered or slightly off-center with a simple Lithuania/Sirens temptation environment.
+
+## Projection Sequence Simplification
+
+- [x] Remove the epigraph projection state from Performance Mode and Soundboard jump controls.
+- [x] Reorder the projection sequence to title, real love, queen, Lithuania, 14 days, Sirens, finale.
+- [x] Remove visible text overlays from image insert states, keeping text only on the title and finale cards.
+- [x] Validate the simplified sequence with `pnpm run check` and `pnpm run build`, then checkpoint and push.
