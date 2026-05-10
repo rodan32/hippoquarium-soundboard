@@ -73,7 +73,7 @@ export default function Performance() {
   const [, navigate] = useLocation();
   const [cueIndex, setCueIndex] = useState(0);
   const [previousImage, setPreviousImage] = useState<string | null>(null);
-  const [masterVolume, setMasterVolume] = useState(0.78);
+  const [masterVolume, setMasterVolume] = useState(0.86);
   const [blackout, setBlackout] = useState(false);
   const [operatorOpen, setOperatorOpen] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -168,7 +168,7 @@ export default function Performance() {
   }, []);
 
   const setVolume = (value: number[]) => {
-    const next = clamp((value[0] ?? 78) / 100, 0, 1);
+    const next = clamp((value[0] ?? 86) / 100, 0, 1);
     setMasterVolume(next);
     if (masterRef.current) {
       masterRef.current.gain.setTargetAtTime(next, masterRef.current.context.currentTime, 0.03);

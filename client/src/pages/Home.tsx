@@ -42,7 +42,7 @@ const categoryLabels: Record<Category, string> = {
 };
 
 export default function Home() {
-  const [masterVolume, setMasterVolume] = useState(0.72);
+  const [masterVolume, setMasterVolume] = useState(0.84);
   const [armed, setArmed] = useState(false);
   const [lastCue, setLastCue] = useState("None yet");
   const [activeLoops, setActiveLoops] = useState<Record<string, boolean>>({});

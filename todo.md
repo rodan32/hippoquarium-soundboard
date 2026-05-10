@@ -31,3 +31,18 @@
 - [ ] Keep audience-facing projection clean, with operator controls hidden unless requested.
 - [ ] Run TypeScript and production build checks after implementation.
 - [ ] Save a checkpoint and report the updated app link with operating instructions.
+
+## Sound Strengthening Pass
+
+- [ ] Inspect the shared Web Audio sound engine and current cue builders for weak gain staging, thin frequency content, and short envelopes.
+- [ ] Add stronger theatrical synthesis layers for tornado, lightning, armageddon rumble, pottery crash, column thud, hippo kiss, restoration, laurel bloom, finale, and preshow hum.
+- [ ] Add master-output safety shaping so the cues can become fuller without harsh clipping.
+- [ ] Validate TypeScript with `pnpm run check` after the audio pass.
+- [ ] Save a new checkpoint and push the stronger sound update to GitHub.
+
+## Optional Free Stock Sound Fallback
+
+- [ ] If the strengthened generated sounds still feel too weak in rehearsal, research free sound sources with clear licensing for theatrical use.
+- [ ] Prefer short, attribution-friendly or public-domain files for storm, lightning, crash, rumble, sparkle, restoration shimmer, and fanfare cues.
+- [ ] Upload any chosen audio files through the web static asset workflow rather than storing large media directly in the project.
+- [ ] Add clear attribution and source notes for any external stock sounds that are integrated.
