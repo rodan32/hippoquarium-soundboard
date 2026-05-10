@@ -46,3 +46,14 @@
 - [ ] Prefer short, attribution-friendly or public-domain files for storm, lightning, crash, rumble, sparkle, restoration shimmer, and fanfare cues.
 - [ ] Upload any chosen audio files through the web static asset workflow rather than storing large media directly in the project.
 - [ ] Add clear attribution and source notes for any external stock sounds that are integrated.
+
+## Stock Sound Integration Pass
+
+- [ ] Find free, license-safe stock sounds for the biggest weak cues: tornado, lightning, armageddon rumble, pottery crash, column thud, restoration shimmer, hippo kiss sparkle, laurel bloom, and finale fanfare.
+- [ ] Prefer Pixabay or Mixkit files when suitable because they are simpler to use without attribution; use Freesound only for CC0 or clearly attributed CC-BY assets.
+- [ ] Download only the selected short audio files and store originals outside the project in `/home/ubuntu/webdev-static-assets/`.
+- [ ] Upload selected audio assets through the web static asset workflow and reference returned URLs in code.
+- [ ] Keep generated Web Audio layers as backup and sweetener layers underneath stock sounds.
+- [ ] Add source and license notes for every integrated stock audio file.
+- [ ] Validate TypeScript and production build after integration.
+- [ ] Save a checkpoint and push the stock-sound update to GitHub.

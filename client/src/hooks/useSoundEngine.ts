@@ -1,10 +1,23 @@
 // Design philosophy: Ancient Greek black-figure pottery adapted into a backstage cue console.
 // This shared hook keeps all generated Web Audio cues consistent across the manual board and fullscreen Performance Mode.
+// Stock audio is layered only as theatrical reinforcement; generated synthesis remains the immediate backup on every cue.
 import { useRef } from "react";
 
 export type Category = "chaos" | "impact" | "magic" | "romance" | "finale" | "utility";
 
 export type LoopHandle = () => void;
+
+export type StockCueId =
+  | "stormBed"
+  | "closeThunder"
+  | "impactThunder"
+  | "apocalypseHorn"
+  | "cinematicImpact"
+  | "collapsingStructure"
+  | "golemStomp"
+  | "comicKiss"
+  | "orchestraTransition"
+  | "trumpetFanfare";
 
 export type SoundEngine = {
   ctx: AudioContext;
@@ -12,6 +25,8 @@ export type SoundEngine = {
   playNoiseBurst: (duration: number, filter: number, gain: number, when?: number, type?: BiquadFilterType, q?: number) => void;
   playTone: (freq: number, duration: number, type?: OscillatorType, gain?: number, when?: number) => void;
   playSweep: (from: number, to: number, duration: number, gain?: number, when?: number, type?: OscillatorType) => void;
+  playStock: (id: StockCueId, gain?: number, whenOffset?: number, offset?: number) => void;
+  stopStock: () => void;
   createLoop: (kind: "tornado" | "rumble" | "restoration" | "preshow") => LoopHandle;
 };
 
@@ -24,6 +39,19 @@ export type Cue = {
   icon: "wind" | "bolt" | "crash" | "sparkles" | "heart" | "music";
   loop?: boolean;
   builder: (engine: SoundEngine) => void | LoopHandle;
+};
+
+const STOCK_SOUNDS: Record<StockCueId, string> = {
+  stormBed: "/manus-storage/rain-thunder-storm_c3699f29.mp3",
+  closeThunder: "/manus-storage/strong-close-thunder-explosion_0c766274.mp3",
+  impactThunder: "/manus-storage/cinematic-impact-thunder_3a444cc1.mp3",
+  apocalypseHorn: "/manus-storage/cinematic-trailer-apocalypse-horn_f0d1f088.mp3",
+  cinematicImpact: "/manus-storage/big-cinematic-impact_de367a5e.mp3",
+  collapsingStructure: "/manus-storage/collapsing-structure_a32cf673.mp3",
+  golemStomp: "/manus-storage/golem-stomp-c_b4a74d43.mp3",
+  comicKiss: "/manus-storage/big-loving-kiss_d54ba6fa.mp3",
+  orchestraTransition: "/manus-storage/epic-orchestra-transition_e57b5460.mp3",
+  trumpetFanfare: "/manus-storage/trumpet-fanfare_88e68411.mp3",
 };
 
 export function clamp(value: number, min: number, max: number) {
@@ -42,6 +70,9 @@ export function makeNoiseBuffer(ctx: AudioContext, duration = 1) {
 export function useSoundEngine(masterVolume: number) {
   const ctxRef = useRef<AudioContext | null>(null);
   const masterRef = useRef<GainNode | null>(null);
+  const stockBuffersRef = useRef<Partial<Record<StockCueId, AudioBuffer>>>({});
+  const stockLoadsRef = useRef<Partial<Record<StockCueId, Promise<AudioBuffer>>>>({});
+  const activeStockRef = useRef<Set<AudioBufferSourceNode>>(new Set());
 
   const ensureEngine = (): SoundEngine => {
     if (!ctxRef.current) {
@@ -51,14 +82,14 @@ export function useSoundEngine(masterVolume: number) {
       const safetyCompressor = ctx.createDynamicsCompressor();
       const warmth = ctx.createBiquadFilter();
       master.gain.value = masterVolume;
-      safetyCompressor.threshold.value = -16;
-      safetyCompressor.knee.value = 22;
-      safetyCompressor.ratio.value = 5;
-      safetyCompressor.attack.value = 0.006;
-      safetyCompressor.release.value = 0.2;
+      safetyCompressor.threshold.value = -14;
+      safetyCompressor.knee.value = 24;
+      safetyCompressor.ratio.value = 7;
+      safetyCompressor.attack.value = 0.004;
+      safetyCompressor.release.value = 0.24;
       warmth.type = "lowpass";
-      warmth.frequency.value = 7200;
-      warmth.Q.value = 0.3;
+      warmth.frequency.value = 7800;
+      warmth.Q.value = 0.28;
       master.connect(safetyCompressor);
       safetyCompressor.connect(warmth);
       warmth.connect(ctx.destination);
@@ -72,6 +103,68 @@ export function useSoundEngine(masterVolume: number) {
       void ctx.resume();
     }
     master.gain.setTargetAtTime(masterVolume, ctx.currentTime, 0.03);
+
+    const loadStock = (id: StockCueId) => {
+      const existing = stockBuffersRef.current[id];
+      if (existing) return Promise.resolve(existing);
+      const loading = stockLoadsRef.current[id];
+      if (loading) return loading;
+      const request = fetch(STOCK_SOUNDS[id])
+        .then((response) => {
+          if (!response.ok) throw new Error(`Could not load stock sound ${id}`);
+          return response.arrayBuffer();
+        })
+        .then((buffer) => ctx.decodeAudioData(buffer))
+        .then((decoded) => {
+          stockBuffersRef.current[id] = decoded;
+          return decoded;
+        })
+        .catch((error) => {
+          console.warn(error);
+          delete stockLoadsRef.current[id];
+          throw error;
+        });
+      stockLoadsRef.current[id] = request;
+      return request;
+    };
+
+    const preloadStock = () => {
+      (Object.keys(STOCK_SOUNDS) as StockCueId[]).forEach((id) => {
+        void loadStock(id).catch(() => undefined);
+      });
+    };
+
+    const stopStock = () => {
+      activeStockRef.current.forEach((source) => {
+        try {
+          source.stop();
+        } catch {
+          // The source may already have completed; removing it below is enough.
+        }
+      });
+      activeStockRef.current.clear();
+    };
+
+    const playStock = (id: StockCueId, gain = 0.75, whenOffset = 0, offset = 0) => {
+      void loadStock(id)
+        .then((buffer) => {
+          const source = ctx.createBufferSource();
+          const amp = ctx.createGain();
+          const when = ctx.currentTime + whenOffset;
+          source.buffer = buffer;
+          amp.gain.setValueAtTime(0.0001, when);
+          amp.gain.exponentialRampToValueAtTime(Math.max(0.001, gain), when + 0.035);
+          amp.gain.setTargetAtTime(Math.max(0.001, gain) * 0.86, when + 0.12, 0.35);
+          source.connect(amp);
+          amp.connect(master);
+          source.onended = () => activeStockRef.current.delete(source);
+          activeStockRef.current.add(source);
+          source.start(when, offset);
+        })
+        .catch(() => undefined);
+    };
+
+    preloadStock();
 
     const playNoiseBurst = (duration: number, filter: number, gain: number, when = ctx.currentTime, type: BiquadFilterType = "bandpass", q = 1.1) => {
       const src = ctx.createBufferSource();
@@ -131,6 +224,12 @@ export function useSoundEngine(masterVolume: number) {
     const createLoop = (kind: "tornado" | "rumble" | "restoration" | "preshow") => {
       let stopped = false;
       const timers: number[] = [];
+      if (kind === "tornado") playStock("stormBed", 0.82);
+      if (kind === "rumble") {
+        playStock("apocalypseHorn", 0.82);
+        playStock("cinematicImpact", 0.68, 0.08);
+      }
+      if (kind === "restoration") playStock("orchestraTransition", 0.52, 0.08);
       const schedule = () => {
         if (stopped) return;
         const now = ctx.currentTime;
@@ -172,10 +271,11 @@ export function useSoundEngine(masterVolume: number) {
       return () => {
         stopped = true;
         timers.forEach(window.clearTimeout);
+        if (kind !== "preshow") stopStock();
       };
     };
 
-    return { ctx, master, playNoiseBurst, playTone, playSweep, createLoop };
+    return { ctx, master, playNoiseBurst, playTone, playSweep, playStock, stopStock, createLoop };
   };
 
   return { ensureEngine, masterRef };
@@ -187,7 +287,7 @@ export function buildCues(): Cue[] {
       id: "tornado",
       number: "Q1",
       name: "Tornado Vase Swirl",
-      subtitle: "Looping comic chaos wind",
+      subtitle: "Looping comic chaos wind with real storm bed",
       category: "chaos",
       icon: "wind",
       loop: true,
@@ -197,11 +297,13 @@ export function buildCues(): Cue[] {
       id: "lightning",
       number: "Q2",
       name: "Lightning Crack",
-      subtitle: "Sharp mythic shock hit",
+      subtitle: "Stock thunder slam plus mythic shock hit",
       category: "chaos",
       icon: "bolt",
       builder: (engine) => {
         const now = engine.ctx.currentTime;
+        engine.playStock("closeThunder", 1.0);
+        engine.playStock("impactThunder", 0.72, 0.045);
         engine.playNoiseBurst(0.12, 4800, 0.58, now, "highpass", 0.5);
         engine.playNoiseBurst(0.26, 2500, 0.44, now + 0.018, "bandpass", 2.2);
         engine.playTone(74, 0.52, "square", 0.28, now + 0.035);
@@ -213,7 +315,7 @@ export function buildCues(): Cue[] {
       id: "armageddon",
       number: "Q3",
       name: "Armageddon Rumble",
-      subtitle: "Looping full-collapse bed",
+      subtitle: "Looping full-collapse bed with apocalypse brass",
       category: "chaos",
       icon: "crash",
       loop: true,
@@ -223,11 +325,13 @@ export function buildCues(): Cue[] {
       id: "pottery-crash",
       number: "Q4",
       name: "Pottery Crash",
-      subtitle: "Comic shards and clatter",
+      subtitle: "Real crash texture with comic shards",
       category: "impact",
       icon: "crash",
       builder: (engine) => {
         const now = engine.ctx.currentTime;
+        engine.playStock("collapsingStructure", 0.96);
+        engine.playStock("cinematicImpact", 0.44, 0.02);
         engine.playTone(62, 0.5, "sine", 0.18, now);
         [0, 0.026, 0.065, 0.12, 0.19, 0.31].forEach((offset, index) => {
           engine.playNoiseBurst(0.18 + index * 0.035, 1150 + index * 610, 0.28 - index * 0.025, now + offset, "bandpass", 1.7);
@@ -240,11 +344,13 @@ export function buildCues(): Cue[] {
       id: "column-thud",
       number: "Q5",
       name: "Column Thud",
-      subtitle: "Heavy limestone impact",
+      subtitle: "Grounded stomp and limestone impact",
       category: "impact",
       icon: "crash",
       builder: (engine) => {
         const now = engine.ctx.currentTime;
+        engine.playStock("golemStomp", 1.05);
+        engine.playStock("cinematicImpact", 0.5, 0.035);
         engine.playTone(38, 0.95, "sine", 0.39, now);
         engine.playTone(76, 0.62, "triangle", 0.2, now + 0.02);
         engine.playNoiseBurst(0.95, 105, 0.34, now + 0.01, "lowpass", 0.8);
@@ -255,24 +361,26 @@ export function buildCues(): Cue[] {
       id: "hippo-kiss",
       number: "Q6",
       name: "Hippo Kiss Sparkle",
-      subtitle: "Romantic comic magic ping",
+      subtitle: "Big comic kiss into romantic magic ping",
       category: "magic",
       icon: "heart",
       builder: (engine) => {
         const now = engine.ctx.currentTime;
-        engine.playTone(196, 0.75, "triangle", 0.055, now);
+        engine.playStock("comicKiss", 1.0);
+        engine.playStock("orchestraTransition", 0.42, 0.12);
+        engine.playTone(196, 0.75, "triangle", 0.055, now + 0.05);
         [523.25, 659.25, 783.99, 1046.5, 1318.51].forEach((freq, index) => {
-          engine.playTone(freq, 0.58 + index * 0.08, index % 2 ? "triangle" : "sine", 0.12 - index * 0.01, now + index * 0.075);
+          engine.playTone(freq, 0.58 + index * 0.08, index % 2 ? "triangle" : "sine", 0.12 - index * 0.01, now + 0.11 + index * 0.075);
         });
-        engine.playSweep(620, 1760, 1.05, 0.075, now + 0.1, "triangle");
-        engine.playNoiseBurst(0.65, 3600, 0.04, now + 0.14, "highpass", 0.7);
+        engine.playSweep(620, 1760, 1.05, 0.075, now + 0.18, "triangle");
+        engine.playNoiseBurst(0.65, 3600, 0.04, now + 0.2, "highpass", 0.7);
       },
     },
     {
       id: "restoration-loop",
       number: "Q7",
       name: "Kintsugi Restoration",
-      subtitle: "Looping gold repair magic",
+      subtitle: "Looping gold repair magic with orchestral lift",
       category: "magic",
       icon: "sparkles",
       loop: true,
@@ -282,11 +390,12 @@ export function buildCues(): Cue[] {
       id: "laurel-bloom",
       number: "Q8",
       name: "Laurel Bloom",
-      subtitle: "Gentle reveal shimmer",
+      subtitle: "Gentle reveal shimmer with cinematic swell",
       category: "romance",
       icon: "sparkles",
       builder: (engine) => {
         const now = engine.ctx.currentTime;
+        engine.playStock("orchestraTransition", 0.56);
         engine.playTone(196, 1.6, "triangle", 0.045, now);
         [392, 523.25, 659.25, 783.99, 987.77, 1174.66].forEach((freq, index) => {
           engine.playTone(freq, 1.0, index % 2 ? "triangle" : "sine", 0.08, now + index * 0.105);
@@ -299,12 +408,14 @@ export function buildCues(): Cue[] {
       id: "tiny-triumph",
       number: "Q9",
       name: "Tiny Triumph Fanfare",
-      subtitle: "Final restored façade button",
+      subtitle: "Trumpet finish plus restored façade button",
       category: "finale",
       icon: "music",
       builder: (engine) => {
         const now = engine.ctx.currentTime;
         const melody = [392, 523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+        engine.playStock("trumpetFanfare", 1.0);
+        engine.playStock("orchestraTransition", 0.42, 0.58);
         melody.forEach((freq, index) => {
           engine.playTone(freq, 0.38, index % 2 ? "triangle" : "square", 0.095, now + index * 0.145);
           engine.playTone(freq / 2, 0.42, "triangle", 0.045, now + index * 0.145);

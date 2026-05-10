@@ -82,10 +82,12 @@ export default function Home() {
   };
 
   const stopAll = () => {
+    const engine = ensureEngine();
     Object.values(loopsRef.current).forEach((stop) => stop());
+    engine.stopStock();
     loopsRef.current = {};
     setActiveLoops({});
-    setLastCue("Stopped all loops");
+    setLastCue("Stopped all sounds");
   };
 
   const grouped = cues.reduce<Record<Category, Cue[]>>((acc, cue) => {

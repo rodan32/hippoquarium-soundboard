@@ -88,10 +88,12 @@ export default function Performance() {
   const nextCue = performanceCues[Math.min(performanceCues.length - 1, cueIndex + 1)];
 
   const stopAllSounds = useCallback(() => {
+    const engine = ensureEngine();
     Object.values(loopsRef.current).forEach((stop) => stop());
+    engine.stopStock();
     loopsRef.current = {};
-    setLastAction("All looped sounds stopped.");
-  }, []);
+    setLastAction("All sounds stopped.");
+  }, [ensureEngine]);
 
   const fireSoundCue = useCallback((cue: Cue) => {
     const engine = ensureEngine();
