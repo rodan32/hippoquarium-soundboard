@@ -1,4 +1,8 @@
-/**
+from pathlib import Path
+
+root = Path('/home/ubuntu/hippoquarium-soundboard')
+
+(root / 'client/src/pages/Home.tsx').write_text(r'''/**
  * Design philosophy: Ancient Greek black-figure pottery adapted into a backstage cue console.
  * This page must reinforce the approved terracotta urn style while remaining practical for fast theatrical cueing.
  */
@@ -494,3 +498,272 @@ export default function Home() {
     </main>
   );
 }
+''')
+
+(root / 'client/src/index.css').write_text(r'''/**
+ * Design philosophy: Ancient Greek black-figure pottery adapted into a backstage cue console.
+ * Global styling uses terracotta, soot black, limestone cream, dusty rose, and ochre-gold to match the play backdrops.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --urn-black: #15100c;
+  --terracotta: #a9562d;
+  --terracotta-dark: #6f2f1b;
+  --limestone: #f3dfb5;
+  --limestone-soft: #d9bc80;
+  --rose: #c78368;
+  --gold: #dcae59;
+  --primary: oklch(0.72 0.12 66);
+  --primary-foreground: oklch(0.17 0.02 55);
+  --sidebar-primary: oklch(0.72 0.12 66);
+  --sidebar-primary-foreground: oklch(0.17 0.02 55);
+  --chart-1: oklch(0.66 0.13 43);
+  --chart-2: oklch(0.72 0.12 66);
+  --chart-3: oklch(0.58 0.08 31);
+  --chart-4: oklch(0.8 0.06 78);
+  --chart-5: oklch(0.38 0.04 38);
+  --radius: 1.15rem;
+  --background: oklch(0.17 0.02 55);
+  --foreground: oklch(0.9 0.04 82);
+  --card: oklch(0.23 0.04 48);
+  --card-foreground: oklch(0.9 0.04 82);
+  --popover: oklch(0.2 0.03 48);
+  --popover-foreground: oklch(0.9 0.04 82);
+  --secondary: oklch(0.3 0.06 43);
+  --secondary-foreground: oklch(0.9 0.04 82);
+  --muted: oklch(0.25 0.03 48);
+  --muted-foreground: oklch(0.72 0.03 82);
+  --accent: oklch(0.72 0.12 66);
+  --accent-foreground: oklch(0.17 0.02 55);
+  --destructive: oklch(0.55 0.16 31);
+  --destructive-foreground: oklch(0.95 0.03 85);
+  --border: oklch(0.72 0.06 72 / 30%);
+  --input: oklch(0.72 0.06 72 / 30%);
+  --ring: oklch(0.72 0.12 66);
+  --sidebar: oklch(0.2 0.03 48);
+  --sidebar-foreground: oklch(0.9 0.04 82);
+  --sidebar-accent: oklch(0.3 0.06 43);
+  --sidebar-accent-foreground: oklch(0.9 0.04 82);
+  --sidebar-border: oklch(0.72 0.06 72 / 24%);
+  --sidebar-ring: oklch(0.72 0.12 66);
+}
+
+.dark {
+  --background: oklch(0.17 0.02 55);
+  --foreground: oklch(0.9 0.04 82);
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Source Sans 3', system-ui, sans-serif;
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) { @apply cursor-pointer; }
+}
+
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .flex { min-height: 0; min-width: 0; }
+  .font-display { font-family: 'Cinzel', Georgia, serif; letter-spacing: -0.02em; }
+  .meander-line {
+    height: 16px;
+    border-top: 2px solid rgba(220, 174, 89, 0.65);
+    border-bottom: 2px solid rgba(220, 174, 89, 0.65);
+    background-image: repeating-linear-gradient(90deg, transparent 0 10px, rgba(220,174,89,.65) 10px 13px, transparent 13px 23px), repeating-linear-gradient(90deg, rgba(220,174,89,.22) 0 2px, transparent 2px 8px);
+  }
+  .control-strip::before {
+    content: "";
+    position: absolute;
+    inset: 14px;
+    pointer-events: none;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(220, 174, 89, 0.18);
+  }
+  .cue-pad {
+    position: relative;
+    min-height: 190px;
+    overflow: hidden;
+    border-radius: 1.4rem;
+    border: 1px solid rgba(236, 190, 120, 0.28);
+    padding: 1.05rem;
+    color: var(--limestone);
+    background: linear-gradient(135deg, rgba(122, 54, 29, 0.92), rgba(35, 17, 10, 0.94));
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.28), 0 18px 40px rgba(0,0,0,.25);
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, filter .18s ease;
+  }
+  .cue-pad:hover {
+    transform: translateY(-3px);
+    border-color: rgba(220, 174, 89, 0.72);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.34), 0 26px 52px rgba(0,0,0,.34);
+  }
+  .cue-pad:active { transform: translateY(0) scale(.99); }
+  .cue-pad.is-looping {
+    border-color: rgba(248, 207, 105, .96);
+    box-shadow: inset 0 0 0 1px rgba(248,207,105,.48), 0 0 0 2px rgba(248,207,105,.18), 0 24px 56px rgba(220,174,89,.22);
+    animation: kintsugiPulse 1.5s ease-in-out infinite;
+  }
+  .cue-pad.impact { background: linear-gradient(135deg, rgba(56, 39, 28, 0.98), rgba(7, 7, 6, 0.96)); }
+  .cue-pad.magic { background: radial-gradient(circle at 80% 10%, rgba(220,174,89,.32), transparent 30%), linear-gradient(135deg, rgba(114, 67, 27, 0.96), rgba(26, 14, 9, .98)); }
+  .cue-pad.romance { background: radial-gradient(circle at 80% 10%, rgba(199,131,104,.35), transparent 34%), linear-gradient(135deg, rgba(116, 55, 43, 0.94), rgba(28, 14, 11, .98)); }
+  .cue-pad.finale { background: radial-gradient(circle at 22% 0%, rgba(220,174,89,.42), transparent 32%), linear-gradient(135deg, rgba(156, 82, 42, .98), rgba(31, 16, 9, .98)); }
+  .cue-pad.utility { background: linear-gradient(135deg, rgba(80, 61, 42, .95), rgba(20, 14, 10, .98)); }
+  .cue-pad-ornament {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 14px;
+    opacity: .72;
+    background-image: repeating-linear-gradient(90deg, transparent 0 9px, rgba(243,223,181,.56) 9px 11px, transparent 11px 20px);
+    border-top: 1px solid rgba(243,223,181,.2);
+  }
+  .cue-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    min-width: 52px;
+    border-radius: 999px;
+    border: 1px solid rgba(243,223,181,.32);
+    background: rgba(0,0,0,.24);
+    font-family: 'Cinzel', Georgia, serif;
+    color: var(--gold);
+  }
+  .cue-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 46px;
+    width: 46px;
+    border-radius: 50%;
+    background: rgba(0,0,0,.24);
+    color: var(--gold);
+  }
+  @keyframes kintsugiPulse {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.18); }
+  }
+
+  @media (min-width: 640px) {
+    .container { padding-left: 1.5rem; padding-right: 1.5rem; }
+  }
+  @media (min-width: 1024px) {
+    .container { padding-left: 2rem; padding-right: 2rem; max-width: 1280px; }
+  }
+}
+''')
+
+(root / 'client/src/App.tsx').write_text(r'''/**
+ * Design philosophy: Ancient Greek black-figure pottery adapted into a backstage cue console.
+ * The app wrapper stays simple so the cue board remains the focus.
+ */
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import NotFound from "@/pages/NotFound";
+import { Route, Switch } from "wouter";
+import ErrorBoundary from "./components/ErrorBoundary";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import Home from "./pages/Home";
+
+function Router() {
+  return (
+    <Switch>
+      <Route path={"/"} component={Home} />
+      <Route path={"/404"} component={NotFound} />
+      <Route component={NotFound} />
+    </Switch>
+  );
+}
+
+function App() {
+  return (
+    <ErrorBoundary>
+      <ThemeProvider defaultTheme="dark">
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
+  );
+}
+
+export default App;
+''')
+
+(root / 'client/index.html').write_text(r'''<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <meta name="description" content="A Grecian-urn inspired theatrical soundboard for Hippoquarium the Musical." />
+    <title>Hippoquarium Soundboard</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script defer src="%VITE_ANALYTICS_ENDPOINT%/umami" data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
+  </body>
+</html>
+''')
+
+print('Wrote Hippoquarium soundboard app files.')
