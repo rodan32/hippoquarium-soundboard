@@ -24,6 +24,24 @@ const heroImage = "https://d2xsxph8kpxj0f.cloudfront.net/310419663030543142/fqAp
 const stormEmblem = "https://d2xsxph8kpxj0f.cloudfront.net/310419663030543142/fqAp36Pj8w3vwPYwmXr6qV/hippoquarium_soundboard_storm_emblem-kbWvxB9dBJ8tPcGom7VpGN.webp";
 const magicEmblem = "https://d2xsxph8kpxj0f.cloudfront.net/310419663030543142/fqAp36Pj8w3vwPYwmXr6qV/hippoquarium_soundboard_magic_emblem-7BsMRk9et8Va5PbnabuhQY.webp";
 
+type ProjectionStateJump = {
+  index: number;
+  label: string;
+  shortLabel: string;
+  note: string;
+};
+
+const projectionStateJumps: ProjectionStateJump[] = [
+  { index: 0, label: "Title Card", shortLabel: "Title", note: "house-open" },
+  { index: 1, label: "Epigraph Card", shortLabel: "Epigraph", note: "watch line" },
+  { index: 3, label: "Fourteen Days", shortLabel: "14 Days", note: "chores photos" },
+  { index: 4, label: "Lithuania Dispatch", shortLabel: "Lithuania", note: "travel insert" },
+  { index: 5, label: "Sirens Temptation", shortLabel: "Sirens", note: "project Kathleen only" },
+  { index: 8, label: "Queen Returns", shortLabel: "Queen", note: "summons" },
+  { index: 11, label: "Candid Real Love", shortLabel: "Real Love", note: "optional cameo" },
+  { index: 12, label: "Finale Card", shortLabel: "Finale", note: "bows" },
+];
+
 function CueIcon({ icon }: { icon: Cue["icon"] }) {
   if (icon === "wind") return <Wind className="h-6 w-6" />;
   if (icon === "bolt") return <Bolt className="h-6 w-6" />;
@@ -66,10 +84,10 @@ export default function Home() {
     return projectionChannelRef.current;
   };
 
-  const sendProjectionCommand = (type: "next" | "back" | "blackout" | "stop" | "overlay") => {
-    getProjectionChannel().postMessage({ source: "soundboard", type, at: Date.now() });
-    const label = type === "next" ? "next cue" : type === "back" ? "previous cue" : type;
-    setProjectionStatus(`Sent ${label} to the projection window.`);
+  const sendProjectionCommand = (type: "next" | "back" | "blackout" | "stop" | "overlay" | "goto", index?: number, label?: string) => {
+    getProjectionChannel().postMessage({ source: "soundboard", type, index, at: Date.now() });
+    const commandLabel = label ?? (type === "next" ? "next cue" : type === "back" ? "previous cue" : type);
+    setProjectionStatus(`Sent ${commandLabel} to the projection window.`);
   };
 
   const openProjectionWindow = () => {
@@ -144,7 +162,7 @@ export default function Home() {
               <p className="font-display text-xs uppercase tracking-[0.33em] text-[var(--gold)]">Hippoquarium</p>
               <h1 className="mt-2 font-display text-3xl leading-none text-[var(--limestone)]">Soundboard</h1>
               <p className="mt-3 text-sm leading-6 text-[rgba(247,224,185,0.72)]">
-                A compact cue board for chaos, wreckage, hippo-kiss magic, and the restored romantic finale.
+                A compact cue board for title cards, family-photo inserts, live-Sirens projection beats, chaos, hippo-kiss magic, and the restored romantic finale.
               </p>
             </div>
 
@@ -191,6 +209,22 @@ export default function Home() {
                 <Button type="button" className="rounded-xl border border-[rgba(236,190,120,0.32)] bg-black/35 text-[var(--limestone)] hover:bg-[rgba(220,174,89,0.18)]" onClick={() => sendProjectionCommand("blackout")}>Blackout</Button>
               </div>
               <Button type="button" className="mt-2 w-full rounded-xl border border-[rgba(236,190,120,0.32)] bg-black/35 text-[var(--limestone)] hover:bg-[rgba(220,174,89,0.18)]" onClick={() => sendProjectionCommand("overlay")}>Toggle Projector Overlay</Button>
+              <div className="mt-3 rounded-2xl border border-[rgba(236,190,120,0.18)] bg-[rgba(236,190,120,0.06)] p-3">
+                <p className="text-xs uppercase tracking-[0.2em] text-[rgba(247,224,185,0.55)]">Projection Inserts</p>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {projectionStateJumps.map((jump) => (
+                    <button
+                      key={jump.index}
+                      type="button"
+                      className="rounded-xl border border-[rgba(236,190,120,0.26)] bg-black/30 px-3 py-2 text-left transition hover:bg-[rgba(220,174,89,0.16)]"
+                      onClick={() => sendProjectionCommand("goto", jump.index, jump.label)}
+                    >
+                      <span className="block font-display text-sm text-[var(--limestone)]">{jump.shortLabel}</span>
+                      <span className="mt-1 block text-[10px] uppercase tracking-[0.12em] text-[rgba(247,224,185,0.52)]">{jump.note}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
               <p className="mt-3 text-xs leading-5 text-[rgba(247,224,185,0.62)]">{projectionStatus}</p>
               <Link
                 href="/performance"
@@ -213,7 +247,7 @@ export default function Home() {
                 <h2 className="mt-2 font-display text-4xl leading-tight text-[var(--limestone)] md:text-5xl">Cue the mythic disaster. Restore it with love.</h2>
               </div>
               <div className="rounded-2xl border border-[rgba(236,190,120,0.25)] bg-[rgba(0,0,0,0.22)] px-4 py-3 text-sm text-[rgba(247,224,185,0.68)] md:max-w-xs">
-                Looping cues toggle on/off. One-shot cues fire immediately. Use <strong className="text-[var(--gold)]">Stop All</strong> before scene changes.
+                Looping cues toggle on/off. One-shot cues fire immediately. The projector panel can also jump to script-specific backdrop states.
               </div>
             </div>
 

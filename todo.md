@@ -87,3 +87,26 @@
 - [x] Inspect the second-to-last Performance Mode scene for duplicate kiss/restoration imagery and looping sound assignments.
 - [x] Remove or reduce the annoying restoration loop in that scene while keeping a clear final narrative arc.
 - [x] Validate the cue cleanup with `pnpm run check` and `pnpm run build`, then save a checkpoint and push to GitHub.
+
+## Revised Script and Family Photo Integration
+
+- [x] Review `Hippoquarium_v7_WatchmanHello.docx` for revised beats, title/epigraph opportunities, and photo mentions.
+- [x] Map supplied personal photos to restrained cueable backdrop states, including Lithuania, young couple, and kids-doing-chores moments.
+- [x] Prepare the uploaded images as web-safe assets without re-viewing the image files, honoring the user's instruction.
+- [x] Add title and epigraph states if they strengthen the revised performance flow.
+- [x] Implement soundboard and Performance Mode controls for the new backdrop states.
+- [x] Validate with `pnpm run check` and `pnpm run build`, then checkpoint and push.
+
+## Animated Kathleen Sirens Temptation Insert
+
+- [x] Create a brief comic South Park–style Kathleen/Sirens temptation projection asset using the supplied Kathleen/Lithuania reference material without re-viewing the uploaded images.
+- [x] Add the Sirens temptation as a restrained cueable backdrop state rather than replacing the main restoration arc.
+- [x] Expose the Sirens temptation state from the Soundboard projector controls and Performance Mode operator controls.
+- [x] Re-check that title, epigraph, Lithuania, chores, and family-photo states match the revised script beats.
+- [x] Validate with `pnpm run check` and `pnpm run build`, then checkpoint and push.
+
+## Live Sirens with Projected Kathleen Clarification
+
+- [x] Revise the Sirens temptation concept so the projection shows only animated Kathleen as a screen character, while the Sirens remain live actors interacting with her.
+- [x] Avoid drawing cartoon Sirens into the projection asset; reserve screen space and timing for live performers to address the projected Kathleen.
+- [x] Give the projected Kathleen state a readable stage-partner composition, likely centered or slightly off-center with a simple Lithuania/Sirens temptation environment.

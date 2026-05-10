@@ -17,26 +17,80 @@ type PerformanceCue = {
   id: string;
   title: string;
   subtitle: string;
-  image: string;
+  layout: "image" | "title" | "epigraph" | "photo-duet" | "lithuania" | "queen" | "sirens" | "candid" | "finale";
+  image?: string;
+  images?: string[];
   soundIds: string[];
-  mood: "calm" | "chaos" | "armageddon" | "restoration" | "romance";
+  mood: "calm" | "chaos" | "armageddon" | "restoration" | "romance" | "card" | "domestic" | "dispatch" | "temptation";
 };
 
 const transitionVideo = "/manus-storage/hippoquarium_chaos_to_restoration_transition_5a40de2c.mp4";
+const urnImage = "/manus-storage/grecian_hippoquarium_style_reference_fc33503e.png";
+const kathleenSirensImage = "https://d2xsxph8kpxj0f.cloudfront.net/310419663030543142/fqAp36Pj8w3vwPYwmXr6qV/kathleen-sirens-stage-partner-b-QrenBHARvdFbStLho5ADfS.webp";
 
 const performanceCues: PerformanceCue[] = [
+  {
+    id: "title-card",
+    title: "Title Card",
+    subtitle: "HIPPOQUARIUM — A Mother's Day catastrophe in five children, fourteen days, and one mask",
+    layout: "title",
+    soundIds: [],
+    mood: "card",
+  },
+  {
+    id: "epigraph-card",
+    title: "Epigraph Card",
+    subtitle: "The watch was always a watch.",
+    layout: "epigraph",
+    soundIds: [],
+    mood: "card",
+  },
   {
     id: "calm-entrance",
     title: "Calm Entrance",
     subtitle: "House-open urn panel and quiet preshow hum",
-    image: "/manus-storage/grecian_hippoquarium_style_reference_fc33503e.png",
+    layout: "image",
+    image: urnImage,
     soundIds: ["preshow-hum"],
     mood: "calm",
+  },
+  {
+    id: "fourteen-days",
+    title: "Fourteen Days Without You",
+    subtitle: "Domestic survival photo insert for the absent queen beat",
+    layout: "photo-duet",
+    images: ["/manus-storage/chores-laundry-basement_8746936e.webp", "/manus-storage/chores-outdoor-dishes_20ffaef0.webp"],
+    soundIds: [],
+    mood: "domestic",
+  },
+  {
+    id: "lithuania-dispatch",
+    title: "Lithuania Dispatch",
+    subtitle: "Brief travel-slide cue for the Watchman correction and Sirens setup",
+    layout: "lithuania",
+    images: [
+      "/manus-storage/lithuania-airport_3d8a431f.webp",
+      "/manus-storage/lithuania-meadow_595e01d9.webp",
+      "/manus-storage/lithuania-sign_f89bd630.webp",
+      "/manus-storage/lithuania-wooden-figure_d5540765.webp",
+    ],
+    soundIds: [],
+    mood: "dispatch",
+  },
+  {
+    id: "sirens-temptation",
+    title: "Sirens Temptation",
+    subtitle: "Projected Kathleen only; live Sirens interact with the open screen space",
+    layout: "sirens",
+    image: kathleenSirensImage,
+    soundIds: [],
+    mood: "temptation",
   },
   {
     id: "chaotic-wreckage",
     title: "Chaotic Wreckage",
     subtitle: "Tornado Vase Swirl with lightning shock hit",
+    layout: "image",
     image: "/manus-storage/restoration_arc_scene_1_chaotic_wreckage_2087ae51.png",
     soundIds: ["tornado", "lightning"],
     mood: "chaos",
@@ -45,14 +99,25 @@ const performanceCues: PerformanceCue[] = [
     id: "absolute-armageddon",
     title: "Absolute Armageddon",
     subtitle: "Full-collapse rumble and pottery crash",
+    layout: "image",
     image: "/manus-storage/restoration_arc_scene_2_absolute_armageddon_ad2795fb.png",
     soundIds: ["armageddon", "pottery-crash"],
     mood: "armageddon",
   },
   {
+    id: "queen-returns",
+    title: "Queen Returns",
+    subtitle: "Soft human-photo summons before the kiss restores the myth",
+    layout: "queen",
+    images: ["/manus-storage/young-love-bench_02e96a39.webp", "/manus-storage/real-love-candid_291ec79c.webp"],
+    soundIds: [],
+    mood: "romance",
+  },
+  {
     id: "golden-repair-afterglow",
     title: "Golden Repair Afterglow",
     subtitle: "The kiss has landed; let the restoration settle without looping shimmer",
+    layout: "image",
     image: "/manus-storage/restoration_arc_scene_3_hippo_kiss_restoration_begins_c4369f89.png",
     soundIds: ["laurel-bloom"],
     mood: "restoration",
@@ -61,7 +126,25 @@ const performanceCues: PerformanceCue[] = [
     id: "fully-restored-romance",
     title: "Fully Restored Romance",
     subtitle: "Quiet romantic finale with tiny triumph fanfare",
+    layout: "image",
     image: "/manus-storage/restoration_arc_scene_4_fully_restored_romance_25131ddc.png",
+    soundIds: ["tiny-triumph"],
+    mood: "romance",
+  },
+  {
+    id: "candid-real-love",
+    title: "Candid Real Love Overlay",
+    subtitle: "Optional tired-and-real photo cameo over the restored language",
+    layout: "candid",
+    images: ["/manus-storage/real-love-candid_291ec79c.webp"],
+    soundIds: [],
+    mood: "romance",
+  },
+  {
+    id: "finale-card",
+    title: "Finale Card",
+    subtitle: "Neon title and Mother's Day dedication for bows",
+    layout: "finale",
     soundIds: ["tiny-triumph"],
     mood: "romance",
   },
@@ -72,14 +155,147 @@ function moodClass(mood: PerformanceCue["mood"]) {
   if (mood === "armageddon") return "storm-active armageddon-active";
   if (mood === "restoration") return "magic-active";
   if (mood === "romance") return "romance-active";
+  if (mood === "temptation") return "temptation-active";
+  if (mood === "dispatch") return "dispatch-active";
+  if (mood === "domestic") return "domestic-active";
   return "calm-active";
+}
+
+function Backdrop({ cue, previous = false }: { cue: PerformanceCue; previous?: boolean }) {
+  const animationClass = previous ? "scene-previous" : "scene-current";
+  const shellClass = `${animationClass} absolute inset-0 h-full w-full overflow-hidden bg-black`;
+
+  if (cue.layout === "image") {
+    return <img src={cue.image} alt={cue.title} className={`${animationClass} absolute inset-0 h-full w-full bg-black object-contain`} />;
+  }
+
+  if (cue.layout === "sirens") {
+    return <img src={cue.image} alt="Animated Kathleen projection for live Sirens" className={`${animationClass} absolute inset-0 h-full w-full bg-black object-contain`} />;
+  }
+
+  if (cue.layout === "title") {
+    return (
+      <div className={`${shellClass} grid place-items-center bg-[radial-gradient(circle_at_50%_42%,rgba(154,57,33,.32),transparent_36%),linear-gradient(135deg,#0b0807,#24140d_55%,#050403)]`}>
+        <img src={urnImage} alt="Grecian urn silhouette" className="absolute inset-0 h-full w-full object-contain opacity-[.18]" />
+        <div className="relative max-w-5xl px-10 text-center">
+          <div className="meander-line mb-10" />
+          <p className="font-display text-sm uppercase tracking-[.58em] text-[var(--gold)]">A Mother's Day performance</p>
+          <h1 className="mt-8 font-display text-[clamp(4rem,12vw,10rem)] leading-[.82] text-[var(--limestone)] drop-shadow-[0_0_30px_rgba(220,174,89,.24)]">HIPPOQUARIUM</h1>
+          <p className="mx-auto mt-8 max-w-4xl font-display text-[clamp(1.1rem,2.5vw,2.3rem)] leading-tight text-[rgba(247,224,185,.86)]">A Mother's Day catastrophe in five children, fourteen days, and one mask.</p>
+          <div className="meander-line mt-10" />
+        </div>
+      </div>
+    );
+  }
+
+  if (cue.layout === "epigraph") {
+    return (
+      <div className={`${shellClass} grid place-items-center bg-[radial-gradient(circle_at_50%_50%,rgba(220,174,89,.12),transparent_34%),linear-gradient(180deg,#090706,#17100c_55%,#050403)]`}>
+        <div className="max-w-5xl px-12 text-center">
+          <p className="font-display text-xs uppercase tracking-[.52em] text-[rgba(220,174,89,.78)]">Watchman Hello</p>
+          <blockquote className="mt-10 font-display text-[clamp(3.2rem,8vw,7.4rem)] leading-[.98] text-[var(--limestone)]">“The watch was always a watch.”</blockquote>
+          <p className="mx-auto mt-10 max-w-2xl text-lg uppercase tracking-[.28em] text-[rgba(247,224,185,.48)]">Begin when the room is listening.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (cue.layout === "photo-duet") {
+    const [first, second] = cue.images ?? [];
+    return (
+      <div className={`${shellClass} bg-[radial-gradient(circle_at_20%_20%,rgba(220,174,89,.16),transparent_32%),linear-gradient(135deg,#17100b,#2b160d_50%,#090706)] p-[5vw]`}>
+        <div className="absolute inset-x-0 top-[7%] z-10 text-center">
+          <p className="font-display text-xs uppercase tracking-[.46em] text-[var(--gold)]">Fourteen Days Without You</p>
+          <h2 className="mt-3 font-display text-[clamp(2.6rem,5.2vw,5.5rem)] text-[var(--limestone)]">Domestic Survival Evidence</h2>
+        </div>
+        <div className="absolute inset-x-[7%] bottom-[8%] top-[31%] grid grid-cols-2 gap-[4vw]">
+          {[first, second].map((src, index) => (
+            <figure key={src} className={`relative overflow-hidden rounded-[1.8rem] border border-[rgba(236,190,120,.48)] bg-black/40 shadow-[0_34px_90px_rgba(0,0,0,.52)] ${index === 0 ? "-rotate-2" : "rotate-2"}`}>
+              <img src={src} alt={index === 0 ? "Chores photo insert one" : "Chores photo insert two"} className="h-full w-full object-cover opacity-85 sepia-[.18]" />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,.35))]" />
+            </figure>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (cue.layout === "lithuania") {
+    const images = cue.images ?? [];
+    return (
+      <div className={`${shellClass} bg-[linear-gradient(135deg,#06140d,#1f3a24_45%,#0b0d08)] p-[4vw]`}>
+        <div className="absolute inset-0 opacity-25 [background-image:radial-gradient(circle_at_22%_22%,rgba(243,223,181,.25),transparent_13%),radial-gradient(circle_at_75%_64%,rgba(220,174,89,.18),transparent_15%)]" />
+        <div className="relative z-10 grid h-full grid-cols-[1.15fr_.85fr] gap-[3vw]">
+          <figure className="overflow-hidden rounded-[2rem] border border-[rgba(236,190,120,.45)] bg-black/35 shadow-2xl">
+            <img src={images[1]} alt="Lithuania meadow scenic insert" className="h-full w-full object-cover opacity-90" />
+          </figure>
+          <div className="grid grid-rows-[auto_1fr_1fr] gap-[2vw]">
+            <div className="rounded-[1.7rem] border border-[rgba(236,190,120,.38)] bg-[rgba(8,10,7,.72)] p-[2vw] shadow-2xl">
+              <p className="font-display text-xs uppercase tracking-[.42em] text-[var(--gold)]">Dispatch from Lithuania</p>
+              <h2 className="mt-3 font-display text-[clamp(2.2rem,4.2vw,4.8rem)] leading-[.9] text-[var(--limestone)]">A correction, a temptation, a meadow.</h2>
+            </div>
+            {images.filter((_, index) => index !== 1).slice(0, 2).map((src, index) => (
+              <figure key={src} className="overflow-hidden rounded-[1.5rem] border border-[rgba(236,190,120,.36)] bg-black/35 shadow-xl">
+                <img src={src} alt={`Lithuania scenic insert ${index + 1}`} className="h-full w-full object-cover opacity-86" />
+              </figure>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (cue.layout === "queen") {
+    const [young, candid] = cue.images ?? [];
+    return (
+      <div className={`${shellClass} bg-[radial-gradient(circle_at_50%_48%,rgba(220,174,89,.18),transparent_38%),linear-gradient(135deg,#080604,#24140d_58%,#050403)]`}>
+        <img src={urnImage} alt="Urn texture behind Queen Returns" className="absolute inset-0 h-full w-full object-contain opacity-[.14]" />
+        <div className="absolute inset-[8%] grid grid-cols-[.9fr_1.1fr] items-center gap-[4vw]">
+          <figure className="overflow-hidden rounded-[2rem] border border-[rgba(236,190,120,.5)] bg-black/40 shadow-2xl -rotate-2">
+            <img src={young} alt="Young couple scenic insert" className="h-[62vh] w-full object-cover opacity-82 sepia-[.12]" />
+          </figure>
+          <div>
+            <p className="font-display text-xs uppercase tracking-[.46em] text-[var(--gold)]">The Queen Returns</p>
+            <h2 className="mt-5 font-display text-[clamp(3.2rem,6.4vw,7rem)] leading-[.86] text-[var(--limestone)]">Not a spell. A summons.</h2>
+            <figure className="mt-8 max-w-xl overflow-hidden rounded-[1.5rem] border border-[rgba(236,190,120,.35)] bg-black/35 shadow-xl rotate-1">
+              <img src={candid} alt="Later candid couple scenic insert" className="h-48 w-full object-cover opacity-70" />
+            </figure>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (cue.layout === "candid") {
+    const [candid] = cue.images ?? [];
+    return (
+      <div className={`${shellClass} grid place-items-center bg-[radial-gradient(circle_at_50%_46%,rgba(220,174,89,.18),transparent_38%),linear-gradient(135deg,#060504,#21130c_50%,#050403)]`}>
+        <img src="/manus-storage/restoration_arc_scene_4_fully_restored_romance_25131ddc.png" alt="Restored urn background" className="absolute inset-0 h-full w-full object-contain opacity-45" />
+        <figure className="relative w-[min(64vw,980px)] overflow-hidden rounded-[2rem] border border-[rgba(236,190,120,.5)] bg-black/55 p-4 shadow-[0_42px_120px_rgba(0,0,0,.65)]">
+          <img src={candid} alt="Candid real love scenic insert" className="max-h-[62vh] w-full rounded-[1.3rem] object-cover opacity-82 sepia-[.08]" />
+          <figcaption className="mt-5 text-center font-display text-[clamp(1.5rem,3vw,3rem)] text-[var(--limestone)]">something later, something tired and real</figcaption>
+        </figure>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${shellClass} grid place-items-center bg-[radial-gradient(circle_at_50%_45%,rgba(220,174,89,.2),transparent_35%),linear-gradient(135deg,#070504,#1b0f0a_54%,#030202)]`}>
+      <img src={urnImage} alt="Grecian urn finale texture" className="absolute inset-0 h-full w-full object-contain opacity-[.12]" />
+      <div className="relative max-w-6xl px-10 text-center">
+        <p className="font-display text-sm uppercase tracking-[.52em] text-[var(--gold)]">Happily-Ever-Earned</p>
+        <h2 className="mt-7 font-display text-[clamp(4rem,10vw,9rem)] leading-[.86] text-[var(--limestone)] drop-shadow-[0_0_40px_rgba(220,174,89,.42)]">HIPPOQUARIUM</h2>
+        <p className="mx-auto mt-8 max-w-4xl font-display text-[clamp(1.8rem,4vw,4.2rem)] leading-tight text-[rgba(247,224,185,.9)]">For Kathleen. For Mother's Day. For the catastrophe she keeps turning into home.</p>
+      </div>
+    </div>
+  );
 }
 
 export default function Performance() {
   const [, navigate] = useLocation();
   const isProjectorWindow = useMemo(() => new URLSearchParams(window.location.search).get("projector") === "1", []);
   const [cueIndex, setCueIndex] = useState(0);
-  const [previousImage, setPreviousImage] = useState<string | null>(null);
+  const [previousCue, setPreviousCue] = useState<PerformanceCue | null>(null);
   const [masterVolume, setMasterVolume] = useState(0.86);
   const [blackout, setBlackout] = useState(false);
   const [operatorOpen, setOperatorOpen] = useState(() => !isProjectorWindow);
@@ -95,6 +311,7 @@ export default function Performance() {
   const { ensureEngine, masterRef } = useSoundEngine(masterVolume);
   const currentCue = performanceCues[cueIndex];
   const nextCue = performanceCues[Math.min(performanceCues.length - 1, cueIndex + 1)];
+  const queenReturnsIndex = performanceCues.findIndex((cue) => cue.id === "queen-returns");
 
   const stopAllSounds = useCallback((options: { fadeOutSeconds?: number; announce?: boolean } = {}) => {
     const engine = ensureEngine();
@@ -147,14 +364,13 @@ export default function Performance() {
 
     if (options.playTransition) {
       setShowTransition(true);
+      setPreviousCue(null);
       setLastAction("Playing chaos-to-restoration transition video.");
       stopAllSounds({ fadeOutSeconds: 0.9, announce: false });
       const kissCue = cueMap.get("hippo-kiss");
       if (kissCue) fireSoundCue(kissCue);
       transitionTimerRef.current = window.setTimeout(() => {
-        // The transition video already carries the chaos-to-restoration image.
-        // Do not fade the old chaos still back over the kiss/restoration scene after it ends.
-        setPreviousImage(null);
+        setPreviousCue(null);
         setCueIndex(bounded);
         setIsSceneSettling(true);
         setShowTransition(false);
@@ -164,7 +380,7 @@ export default function Performance() {
       return;
     }
 
-    setPreviousImage(performanceCues[cueIndex].image);
+    setPreviousCue(performanceCues[cueIndex]);
     setCueIndex(bounded);
     setIsSceneSettling(true);
     setShowTransition(false);
@@ -173,12 +389,12 @@ export default function Performance() {
   }, [cueIndex, cueMap, fireSoundCue, playPerformanceCue, stopAllSounds]);
 
   const advance = useCallback(() => {
-    if (cueIndex === 2) {
-      goToCue(3, { playTransition: true });
+    if (cueIndex === queenReturnsIndex) {
+      goToCue(cueIndex + 1, { playTransition: true });
       return;
     }
     goToCue(cueIndex + 1);
-  }, [cueIndex, goToCue]);
+  }, [cueIndex, goToCue, queenReturnsIndex]);
 
   const back = useCallback(() => {
     goToCue(cueIndex - 1);
@@ -294,6 +510,7 @@ export default function Performance() {
         .transitioning-restoration .magic-glow { opacity: .42; animation: magicBreathe 4.2s ease-in-out infinite; }
         .magic-active .magic-glow, .romance-active .magic-glow { opacity: .56; animation: magicBreathe 4.2s ease-in-out infinite; }
         .romance-active .magic-glow { opacity: .72; }
+        .temptation-active .magic-glow { opacity: .22; animation: magicBreathe 5.4s ease-in-out infinite; }
         @keyframes stormFlash {
           0%, 15%, 18%, 52%, 55%, 100% { opacity: 0; }
           16%, 53% { opacity: .72; }
@@ -341,14 +558,7 @@ export default function Performance() {
       />
 
       <div className={`absolute inset-0 z-0 bg-black ${isSceneSettling ? "scene-settling" : ""}`}>
-        {previousImage && !showTransition && (
-          <img
-            key={`previous-${previousImage}`}
-            src={previousImage}
-            alt="Previous Hippoquarium scene"
-            className="scene-previous absolute inset-0 h-full w-full object-contain"
-          />
-        )}
+        {previousCue && !showTransition && <Backdrop cue={previousCue} previous />}
         {showTransition ? (
           <video
             key="restoration-transition"
@@ -359,12 +569,7 @@ export default function Performance() {
             className="transition-video absolute inset-0 h-full w-full bg-black object-contain"
           />
         ) : (
-          <img
-            key={currentCue.image}
-            src={currentCue.image}
-            alt={currentCue.title}
-            className="scene-current absolute inset-0 h-full w-full object-contain"
-          />
+          <Backdrop key={currentCue.id} cue={currentCue} />
         )}
       </div>
 
@@ -434,7 +639,7 @@ export default function Performance() {
           </div>
 
           <p className="mt-3 text-xs text-[rgba(247,224,185,.58)]">
-            Controls: Space / Right Arrow advances, Left Arrow backs up, B toggles blackout, S stops sounds, O hides or shows this overlay, Esc exits fullscreen or returns to the Soundboard. In projector-window mode, the Soundboard window can also send Next, Back, Stop, Blackout, and Overlay commands. Hover the bottom edge to reveal hidden controls.
+            Controls: Space / Right Arrow advances, Left Arrow backs up, B toggles blackout, S stops sounds, O hides or shows this overlay, Esc exits fullscreen or returns to the Soundboard. In projector-window mode, the Soundboard window can also send Next, Back, Stop, Blackout, Overlay, and direct scene jumps. Hover the bottom edge to reveal hidden controls.
           </p>
         </div>
       </div>
