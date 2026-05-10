@@ -235,7 +235,6 @@ export function useSoundEngine(masterVolume: number) {
         playStock("apocalypseHorn", 0.82);
         playStock("cinematicImpact", 0.68, 0.08);
       }
-      if (kind === "restoration") playStock("orchestraTransition", 0.52, 0.08);
       const schedule = () => {
         if (stopped) return;
         const now = ctx.currentTime;
@@ -252,11 +251,12 @@ export function useSoundEngine(masterVolume: number) {
           timers.push(window.setTimeout(schedule, 2450));
         }
         if (kind === "restoration") {
-          playTone(261.63, 1.8, "triangle", 0.032, now);
-          playTone(392, 1.6, "sine", 0.04, now + 0.16);
-          playTone(523.25, 1.5, "sine", 0.035, now + 0.36);
-          playNoiseBurst(1.45, 2600, 0.018, now + 0.18, "highpass", 0.7);
-          timers.push(window.setTimeout(schedule, 2150));
+          playTone(329.63, 2.2, "sine", 0.026, now);
+          playTone(493.88, 2.0, "sine", 0.032, now + 0.2);
+          playTone(659.25, 1.85, "sine", 0.026, now + 0.48);
+          playTone(987.77, 1.35, "triangle", 0.014, now + 0.78);
+          playNoiseBurst(1.1, 3400, 0.012, now + 0.24, "highpass", 0.55);
+          timers.push(window.setTimeout(schedule, 2600));
         }
         if (kind === "preshow") {
           playTone(110, 3.3, "sine", 0.045, now);
@@ -358,11 +358,11 @@ export function buildCues(): Cue[] {
       icon: "heart",
       builder: (engine) => {
         const now = engine.ctx.currentTime;
-        engine.playStock("comicKiss", 0.88);
-        engine.playStock("orchestraTransition", 0.32, 0.28);
-        [523.25, 659.25, 783.99].forEach((freq, index) => {
-          engine.playTone(freq, 0.72, "sine", 0.055, now + 0.16 + index * 0.12);
+        engine.playStock("comicKiss", 0.92);
+        [659.25, 783.99, 1046.5, 1318.51].forEach((freq, index) => {
+          engine.playTone(freq, 0.62 + index * 0.06, "sine", 0.045 - index * 0.004, now + 0.12 + index * 0.095);
         });
+        engine.playNoiseBurst(0.34, 4200, 0.012, now + 0.26, "highpass", 0.5);
       },
     },
     {

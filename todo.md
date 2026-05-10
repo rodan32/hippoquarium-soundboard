@@ -150,3 +150,9 @@
 - [x] Replace abrupt chaos, video, and kiss/restoration scene shifts with cross-dissolves, lighting changes, and layered scenic transformations.
 - [x] Make the video feel embedded in the stage sequence rather than a separate hard-cut projection mode.
 - [x] Keep restoration visually connected to the preceding chaos and video, resolving the same world rather than switching to an unrelated scene.
+
+## Q6/Q7 Doom-Horn Cleanup
+
+- [x] Inspect Q6 Kiss Cue and Q7 Restoration Underscore for remaining ominous brass, doom-horn stock layers, or low synthetic horn-like tones.
+- [x] Remove or replace those layers so Q6 reads as a clean comic kiss/magic handoff and Q7 reads as gentle restoration underscoring.
+- [x] Validate with `pnpm run check` and `pnpm run build`, then checkpoint and push.
