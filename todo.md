@@ -81,3 +81,9 @@
 - [x] Inspect Performance Mode cue scene order and confirm why the kiss/restoration sequence briefly returns to chaos imagery.
 - [x] Reorder or remap the Performance Mode scenes so the narrative flows from disaster into kiss, restoration, laurel bloom, and finale without visual regression.
 - [x] Validate the fix with `pnpm run check` and `pnpm run build`, then save a checkpoint and push to GitHub.
+
+## Second-to-Last Cue Cleanup
+
+- [x] Inspect the second-to-last Performance Mode scene for duplicate kiss/restoration imagery and looping sound assignments.
+- [x] Remove or reduce the annoying restoration loop in that scene while keeping a clear final narrative arc.
+- [x] Validate the cue cleanup with `pnpm run check` and `pnpm run build`, then save a checkpoint and push to GitHub.
