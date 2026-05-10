@@ -26,7 +26,7 @@ type PerformanceCue = {
 
 const transitionVideo = "/manus-storage/hippoquarium_chaos_to_restoration_transition_5a40de2c.mp4";
 const urnImage = "/manus-storage/grecian_hippoquarium_style_reference_fc33503e.png";
-const kathleenSirensImage = "https://d2xsxph8kpxj0f.cloudfront.net/310419663030543142/fqAp36Pj8w3vwPYwmXr6qV/kathleen-sirens-stage-partner-b-QrenBHARvdFbStLho5ADfS.webp";
+const kathleenSirensImage = "/manus-storage/kathleen-crappy-video-photo_bd657e76.webp";
 
 const performanceCues: PerformanceCue[] = [
   {
@@ -81,7 +81,7 @@ const performanceCues: PerformanceCue[] = [
   {
     id: "sirens-temptation",
     title: "Sirens",
-    subtitle: "Projected Kathleen only; live Sirens interact with the open screen space",
+    subtitle: "Projected Kathleen photo gag; live Sirens interact with the crude bouncing image",
     layout: "sirens",
     image: kathleenSirensImage,
     soundIds: [],
@@ -116,7 +116,16 @@ function Backdrop({ cue, previous = false }: { cue: PerformanceCue; previous?: b
   }
 
   if (cue.layout === "sirens") {
-    return <img src={cue.image} alt="Animated Kathleen projection for live Sirens" className={`${animationClass} absolute inset-0 h-full w-full bg-black object-contain`} />;
+    return (
+      <div className={`${shellClass} bg-[radial-gradient(circle_at_70%_35%,rgba(220,174,89,.18),transparent_28%),linear-gradient(135deg,#100b08,#27160e_48%,#050403)]`}>
+        <img src={urnImage} alt="Grecian urn backdrop" className="absolute inset-0 h-full w-full object-contain opacity-[.16]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.18),transparent_34%,transparent_66%,rgba(0,0,0,.24))]" />
+        <div className="absolute left-[9vw] top-[10vh] h-[76vh] w-[42vw] rounded-[3rem] border border-[rgba(236,190,120,.24)] bg-[rgba(236,190,120,.05)] shadow-[0_0_80px_rgba(220,174,89,.08)]" />
+        <figure className="kathleen-crappy-video absolute right-[10vw] top-[11vh] w-[min(36vw,560px)] overflow-hidden rounded-[.25rem] border-[6px] border-black bg-black shadow-[0_34px_90px_rgba(0,0,0,.62)]">
+          <img src={cue.image} alt="Kathleen photo projected as a deliberately crude bouncing video gag" className="block h-[68vh] w-full object-cover opacity-92 contrast-[1.04] saturate-[.94]" />
+        </figure>
+      </div>
+    );
   }
 
   if (cue.layout === "title") {
@@ -427,7 +436,19 @@ export default function Performance() {
         .transitioning-restoration .magic-glow { opacity: .42; animation: magicBreathe 4.2s ease-in-out infinite; }
         .magic-active .magic-glow, .romance-active .magic-glow { opacity: .56; animation: magicBreathe 4.2s ease-in-out infinite; }
         .romance-active .magic-glow { opacity: .72; }
-        .temptation-active .magic-glow { opacity: .22; animation: magicBreathe 5.4s ease-in-out infinite; }
+        .temptation-active .magic-glow { opacity: .18; animation: magicBreathe 5.4s ease-in-out infinite; }
+        .kathleen-crappy-video {
+          transform-origin: 50% 82%;
+          animation: kathleenCrappyBounce 1850ms steps(2, end) infinite;
+          will-change: transform, filter;
+        }
+        @keyframes kathleenCrappyBounce {
+          0% { transform: translate3d(0, 0, 0) scaleX(1) rotate(-1.5deg); filter: saturate(.9); }
+          24% { transform: translate3d(-2vw, 1.6vh, 0) scaleX(1) rotate(1.5deg); filter: saturate(1.04); }
+          50% { transform: translate3d(-1vw, -1.2vh, 0) scaleX(-1) rotate(-2deg); filter: saturate(.86); }
+          76% { transform: translate3d(1.7vw, 1.2vh, 0) scaleX(-1) rotate(1deg); filter: saturate(1.02); }
+          100% { transform: translate3d(0, 0, 0) scaleX(1) rotate(-1.5deg); filter: saturate(.9); }
+        }
         @keyframes stormFlash {
           0%, 15%, 18%, 52%, 55%, 100% { opacity: 0; }
           16%, 53% { opacity: .72; }

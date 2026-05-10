@@ -117,3 +117,11 @@
 - [x] Reorder the projection sequence to title, real love, queen, Lithuania, 14 days, Sirens, finale.
 - [x] Remove visible text overlays from image insert states, keeping text only on the title and finale cards.
 - [x] Validate the simplified sequence with `pnpm run check` and `pnpm run build`, then checkpoint and push.
+
+## Corrected Sirens Projection Concept
+
+- [x] Replace the generated/cartoon Sirens projection with the attached Kathleen photo used only by file path, without re-viewing the image.
+- [x] Put the photo-based Kathleen figure on one of the existing show backgrounds rather than generating a new illustrated scene.
+- [x] Animate the Kathleen photo intentionally crudely, with a small bounce, wobble, and direction reversal inspired by a low-frame-rate cutout video gag.
+- [x] Keep the Sirens insert free of text overlays and preserve space for live actors to interact with the projected Kathleen.
+- [x] Validate the corrected Sirens scene with `pnpm run check` and `pnpm run build`, then checkpoint and push.
