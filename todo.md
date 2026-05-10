@@ -125,3 +125,12 @@
 - [x] Animate the Kathleen photo intentionally crudely, with a small bounce, wobble, and direction reversal inspired by a low-frame-rate cutout video gag.
 - [x] Keep the Sirens insert free of text overlays and preserve space for live actors to interact with the projected Kathleen.
 - [x] Validate the corrected Sirens scene with `pnpm run check` and `pnpm run build`, then checkpoint and push.
+
+## Restore Scene System with Temporary Inserts
+
+- [x] Restore the core Performance Mode progression as title, beginning of the catastrophe, horrible chaos, kiss and restoration, then finale if still needed.
+- [x] Convert real love, queen, Lithuania, 14 days, and Sirens into independently triggerable insert overlays instead of main sequence steps.
+- [x] Allow inserts to be turned off cleanly so the underlying main scene remains active.
+- [x] Preserve the corrected crude photo-based Kathleen Sirens gag as an insert, not as a permanent scene replacement.
+- [x] Update Soundboard controls to separate main scene stepping from insert trigger/dismiss controls.
+- [x] Validate the restored scene system with `pnpm run check` and `pnpm run build`, then checkpoint and push.

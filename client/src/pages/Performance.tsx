@@ -1,34 +1,46 @@
 // Design philosophy: Ancient Greek black-figure pottery turned into a projection-ready stage ritual.
-// This page keeps controls hidden from the audience image while preserving terracotta, soot-black, limestone, and gold cue language.
+// This page preserves a core scene progression while allowing temporary photo inserts to appear over any active scene.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { buildCues, clamp, type Cue, type LoopHandle, useSoundEngine } from "@/hooks/useSoundEngine";
-import { CircleStop, Eye, Maximize, Minimize, SkipBack, SkipForward, Volume2 } from "lucide-react";
+import { CircleStop, Eye, Maximize, Minimize, SkipBack, SkipForward, Volume2, X } from "lucide-react";
+
+type InsertId = "real-love" | "queen" | "lithuania" | "fourteen-days" | "sirens";
 
 type ProjectionCommand = {
   source?: string;
-  type?: "next" | "back" | "blackout" | "stop" | "overlay" | "goto";
+  type?: "next" | "back" | "blackout" | "stop" | "overlay" | "goto" | "insert" | "clear-insert";
   index?: number;
+  insertId?: InsertId;
 };
 
 type PerformanceCue = {
   id: string;
   title: string;
   subtitle: string;
-  layout: "image" | "title" | "photo-duet" | "lithuania" | "queen" | "sirens" | "candid" | "finale";
+  layout: "image" | "title" | "finale";
+  image?: string;
+  soundIds: string[];
+  mood: "calm" | "chaos" | "armageddon" | "restoration" | "romance" | "card";
+};
+
+type InsertCue = {
+  id: InsertId;
+  title: string;
+  subtitle: string;
+  layout: "photo-duet" | "lithuania" | "queen" | "sirens" | "candid";
   image?: string;
   images?: string[];
-  soundIds: string[];
-  mood: "calm" | "chaos" | "armageddon" | "restoration" | "romance" | "card" | "domestic" | "dispatch" | "temptation";
+  mood: "romance" | "domestic" | "dispatch" | "temptation";
 };
 
 const transitionVideo = "/manus-storage/hippoquarium_chaos_to_restoration_transition_5a40de2c.mp4";
 const urnImage = "/manus-storage/grecian_hippoquarium_style_reference_fc33503e.png";
 const kathleenSirensImage = "/manus-storage/kathleen-crappy-video-photo_bd657e76.webp";
 
-const performanceCues: PerformanceCue[] = [
+const mainPerformanceCues: PerformanceCue[] = [
   {
     id: "title-card",
     title: "Title Card",
@@ -38,27 +50,63 @@ const performanceCues: PerformanceCue[] = [
     mood: "card",
   },
   {
-    id: "candid-real-love",
-    title: "Real Love",
-    subtitle: "Photo insert",
+    id: "catastrophe-begins",
+    title: "Beginning of the Catastrophe",
+    subtitle: "Tornado Vase Swirl begins the damage",
+    layout: "image",
+    image: "/manus-storage/restoration_arc_scene_1_chaotic_wreckage_2087ae51.png",
+    soundIds: ["tornado", "lightning"],
+    mood: "chaos",
+  },
+  {
+    id: "horrible-chaos",
+    title: "Horrible Chaos",
+    subtitle: "Full-collapse rumble and pottery crash",
+    layout: "image",
+    image: "/manus-storage/restoration_arc_scene_2_absolute_armageddon_ad2795fb.png",
+    soundIds: ["armageddon", "pottery-crash"],
+    mood: "armageddon",
+  },
+  {
+    id: "kiss-restoration",
+    title: "Kiss and Restoration",
+    subtitle: "The kiss lands and the restoration begins",
+    layout: "image",
+    image: "/manus-storage/restoration_arc_scene_3_hippo_kiss_restoration_begins_c4369f89.png",
+    soundIds: ["laurel-bloom"],
+    mood: "restoration",
+  },
+  {
+    id: "finale-card",
+    title: "Finale Card",
+    subtitle: "Mother's Day dedication for bows",
+    layout: "finale",
+    soundIds: ["tiny-triumph"],
+    mood: "romance",
+  },
+];
+
+const insertCues: InsertCue[] = [
+  {
+    id: "real-love",
+    title: "Real Love Insert",
+    subtitle: "Candid real-love photo insert",
     layout: "candid",
     images: ["/manus-storage/real-love-candid_291ec79c.webp"],
-    soundIds: [],
     mood: "romance",
   },
   {
-    id: "queen-returns",
-    title: "Queen Returns",
-    subtitle: "Photo insert",
+    id: "queen",
+    title: "Queen Insert",
+    subtitle: "Queen Returns photo insert",
     layout: "queen",
     images: ["/manus-storage/young-love-bench_02e96a39.webp", "/manus-storage/real-love-candid_291ec79c.webp"],
-    soundIds: [],
     mood: "romance",
   },
   {
-    id: "lithuania-dispatch",
-    title: "Lithuania",
-    subtitle: "Photo insert",
+    id: "lithuania",
+    title: "Lithuania Insert",
+    subtitle: "Lithuania travel-photo insert",
     layout: "lithuania",
     images: [
       "/manus-storage/lithuania-airport_3d8a431f.webp",
@@ -66,37 +114,27 @@ const performanceCues: PerformanceCue[] = [
       "/manus-storage/lithuania-sign_f89bd630.webp",
       "/manus-storage/lithuania-wooden-figure_d5540765.webp",
     ],
-    soundIds: [],
     mood: "dispatch",
   },
   {
     id: "fourteen-days",
-    title: "14 Days",
-    subtitle: "Photo insert",
+    title: "14 Days Insert",
+    subtitle: "Domestic survival photo insert",
     layout: "photo-duet",
     images: ["/manus-storage/chores-laundry-basement_8746936e.webp", "/manus-storage/chores-outdoor-dishes_20ffaef0.webp"],
-    soundIds: [],
     mood: "domestic",
   },
   {
-    id: "sirens-temptation",
-    title: "Sirens",
-    subtitle: "Projected Kathleen photo gag; live Sirens interact with the crude bouncing image",
+    id: "sirens",
+    title: "Sirens Insert",
+    subtitle: "Crude projected Kathleen photo gag for live Sirens",
     layout: "sirens",
     image: kathleenSirensImage,
-    soundIds: [],
     mood: "temptation",
   },
-  {
-    id: "finale-card",
-    title: "Finale Card",
-    subtitle: "Neon title and Mother's Day dedication for bows",
-    layout: "finale",
-    soundIds: ["tiny-triumph"],
-    mood: "romance",
-  },
 ];
-function moodClass(mood: PerformanceCue["mood"]) {
+
+function moodClass(mood: PerformanceCue["mood"] | InsertCue["mood"]) {
   if (mood === "chaos") return "storm-active";
   if (mood === "armageddon") return "storm-active armageddon-active";
   if (mood === "restoration") return "magic-active";
@@ -115,19 +153,6 @@ function Backdrop({ cue, previous = false }: { cue: PerformanceCue; previous?: b
     return <img src={cue.image} alt={cue.title} className={`${animationClass} absolute inset-0 h-full w-full bg-black object-contain`} />;
   }
 
-  if (cue.layout === "sirens") {
-    return (
-      <div className={`${shellClass} bg-[radial-gradient(circle_at_70%_35%,rgba(220,174,89,.18),transparent_28%),linear-gradient(135deg,#100b08,#27160e_48%,#050403)]`}>
-        <img src={urnImage} alt="Grecian urn backdrop" className="absolute inset-0 h-full w-full object-contain opacity-[.16]" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.18),transparent_34%,transparent_66%,rgba(0,0,0,.24))]" />
-        <div className="absolute left-[9vw] top-[10vh] h-[76vh] w-[42vw] rounded-[3rem] border border-[rgba(236,190,120,.24)] bg-[rgba(236,190,120,.05)] shadow-[0_0_80px_rgba(220,174,89,.08)]" />
-        <figure className="kathleen-crappy-video absolute right-[10vw] top-[11vh] w-[min(36vw,560px)] overflow-hidden rounded-[.25rem] border-[6px] border-black bg-black shadow-[0_34px_90px_rgba(0,0,0,.62)]">
-          <img src={cue.image} alt="Kathleen photo projected as a deliberately crude bouncing video gag" className="block h-[68vh] w-full object-cover opacity-92 contrast-[1.04] saturate-[.94]" />
-        </figure>
-      </div>
-    );
-  }
-
   if (cue.layout === "title") {
     return (
       <div className={`${shellClass} grid place-items-center bg-[radial-gradient(circle_at_50%_42%,rgba(154,57,33,.32),transparent_36%),linear-gradient(135deg,#0b0807,#24140d_55%,#050403)]`}>
@@ -143,9 +168,36 @@ function Backdrop({ cue, previous = false }: { cue: PerformanceCue; previous?: b
     );
   }
 
+  return (
+    <div className={`${shellClass} grid place-items-center bg-[radial-gradient(circle_at_50%_45%,rgba(220,174,89,.2),transparent_35%),linear-gradient(135deg,#070504,#1b0f0a_54%,#030202)]`}>
+      <img src={urnImage} alt="Grecian urn finale texture" className="absolute inset-0 h-full w-full object-contain opacity-[.12]" />
+      <div className="relative max-w-6xl px-10 text-center">
+        <p className="font-display text-sm uppercase tracking-[.52em] text-[var(--gold)]">Happily-Ever-Earned</p>
+        <h2 className="mt-7 font-display text-[clamp(4rem,10vw,9rem)] leading-[.86] text-[var(--limestone)] drop-shadow-[0_0_40px_rgba(220,174,89,.42)]">HIPPOQUARIUM</h2>
+        <p className="mx-auto mt-8 max-w-4xl font-display text-[clamp(1.8rem,4vw,4.2rem)] leading-tight text-[rgba(247,224,185,.9)]">For Kathleen. For Mother's Day. For the catastrophe she keeps turning into home.</p>
+      </div>
+    </div>
+  );
+}
 
-  if (cue.layout === "photo-duet") {
-    const [first, second] = cue.images ?? [];
+function InsertOverlay({ insert }: { insert: InsertCue }) {
+  const shellClass = "insert-current absolute inset-0 h-full w-full overflow-hidden bg-black";
+
+  if (insert.layout === "sirens") {
+    return (
+      <div className={`${shellClass} bg-[radial-gradient(circle_at_70%_35%,rgba(220,174,89,.18),transparent_28%),linear-gradient(135deg,#100b08,#27160e_48%,#050403)]`}>
+        <img src={urnImage} alt="Grecian urn backdrop" className="absolute inset-0 h-full w-full object-contain opacity-[.2]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.14),transparent_32%,transparent_68%,rgba(0,0,0,.28))]" />
+        <div className="absolute left-[7vw] top-[9vh] h-[78vh] w-[46vw] rounded-[3rem] border border-[rgba(236,190,120,.22)] bg-[rgba(236,190,120,.045)] shadow-[0_0_80px_rgba(220,174,89,.08)]" />
+        <figure className="kathleen-crappy-video absolute right-[10vw] top-[11vh] w-[min(36vw,560px)] overflow-hidden rounded-[.25rem] border-[6px] border-black bg-black shadow-[0_34px_90px_rgba(0,0,0,.62)]">
+          <img src={insert.image} alt="Kathleen photo projected as a deliberately crude bouncing video gag" className="block h-[68vh] w-full object-cover opacity-92 contrast-[1.04] saturate-[.94]" />
+        </figure>
+      </div>
+    );
+  }
+
+  if (insert.layout === "photo-duet") {
+    const [first, second] = insert.images ?? [];
     return (
       <div className={`${shellClass} bg-[radial-gradient(circle_at_20%_20%,rgba(220,174,89,.16),transparent_32%),linear-gradient(135deg,#17100b,#2b160d_50%,#090706)] p-[5vw]`}>
         <div className="absolute inset-[7%] grid grid-cols-2 gap-[4vw]">
@@ -160,8 +212,8 @@ function Backdrop({ cue, previous = false }: { cue: PerformanceCue; previous?: b
     );
   }
 
-  if (cue.layout === "lithuania") {
-    const images = cue.images ?? [];
+  if (insert.layout === "lithuania") {
+    const images = insert.images ?? [];
     return (
       <div className={`${shellClass} bg-[linear-gradient(135deg,#06140d,#1f3a24_45%,#0b0d08)] p-[4vw]`}>
         <div className="absolute inset-0 opacity-25 [background-image:radial-gradient(circle_at_22%_22%,rgba(243,223,181,.25),transparent_13%),radial-gradient(circle_at_75%_64%,rgba(220,174,89,.18),transparent_15%)]" />
@@ -181,8 +233,8 @@ function Backdrop({ cue, previous = false }: { cue: PerformanceCue; previous?: b
     );
   }
 
-  if (cue.layout === "queen") {
-    const [young, candid] = cue.images ?? [];
+  if (insert.layout === "queen") {
+    const [young, candid] = insert.images ?? [];
     return (
       <div className={`${shellClass} bg-[radial-gradient(circle_at_50%_48%,rgba(220,174,89,.18),transparent_38%),linear-gradient(135deg,#080604,#24140d_58%,#050403)]`}>
         <img src={urnImage} alt="Urn texture behind Queen Returns" className="absolute inset-0 h-full w-full object-contain opacity-[.14]" />
@@ -198,26 +250,13 @@ function Backdrop({ cue, previous = false }: { cue: PerformanceCue; previous?: b
     );
   }
 
-  if (cue.layout === "candid") {
-    const [candid] = cue.images ?? [];
-    return (
-      <div className={`${shellClass} grid place-items-center bg-[radial-gradient(circle_at_50%_46%,rgba(220,174,89,.18),transparent_38%),linear-gradient(135deg,#060504,#21130c_50%,#050403)]`}>
-        <img src="/manus-storage/restoration_arc_scene_4_fully_restored_romance_25131ddc.png" alt="Restored urn background" className="absolute inset-0 h-full w-full object-contain opacity-45" />
-        <figure className="relative w-[min(64vw,980px)] overflow-hidden rounded-[2rem] border border-[rgba(236,190,120,.5)] bg-black/55 p-4 shadow-[0_42px_120px_rgba(0,0,0,.65)]">
-          <img src={candid} alt="Candid real love scenic insert" className="max-h-[72vh] w-full rounded-[1.3rem] object-cover opacity-86 sepia-[.08]" />
-        </figure>
-      </div>
-    );
-  }
-
+  const [candid] = insert.images ?? [];
   return (
-    <div className={`${shellClass} grid place-items-center bg-[radial-gradient(circle_at_50%_45%,rgba(220,174,89,.2),transparent_35%),linear-gradient(135deg,#070504,#1b0f0a_54%,#030202)]`}>
-      <img src={urnImage} alt="Grecian urn finale texture" className="absolute inset-0 h-full w-full object-contain opacity-[.12]" />
-      <div className="relative max-w-6xl px-10 text-center">
-        <p className="font-display text-sm uppercase tracking-[.52em] text-[var(--gold)]">Happily-Ever-Earned</p>
-        <h2 className="mt-7 font-display text-[clamp(4rem,10vw,9rem)] leading-[.86] text-[var(--limestone)] drop-shadow-[0_0_40px_rgba(220,174,89,.42)]">HIPPOQUARIUM</h2>
-        <p className="mx-auto mt-8 max-w-4xl font-display text-[clamp(1.8rem,4vw,4.2rem)] leading-tight text-[rgba(247,224,185,.9)]">For Kathleen. For Mother's Day. For the catastrophe she keeps turning into home.</p>
-      </div>
+    <div className={`${shellClass} grid place-items-center bg-[radial-gradient(circle_at_50%_46%,rgba(220,174,89,.18),transparent_38%),linear-gradient(135deg,#060504,#21130c_50%,#050403)]`}>
+      <img src="/manus-storage/restoration_arc_scene_4_fully_restored_romance_25131ddc.png" alt="Restored urn background" className="absolute inset-0 h-full w-full object-contain opacity-45" />
+      <figure className="relative w-[min(64vw,980px)] overflow-hidden rounded-[2rem] border border-[rgba(236,190,120,.5)] bg-black/55 p-4 shadow-[0_42px_120px_rgba(0,0,0,.65)]">
+        <img src={candid} alt="Candid real love scenic insert" className="max-h-[72vh] w-full rounded-[1.3rem] object-cover opacity-86 sepia-[.08]" />
+      </figure>
     </div>
   );
 }
@@ -227,6 +266,7 @@ export default function Performance() {
   const isProjectorWindow = useMemo(() => new URLSearchParams(window.location.search).get("projector") === "1", []);
   const [cueIndex, setCueIndex] = useState(0);
   const [previousCue, setPreviousCue] = useState<PerformanceCue | null>(null);
+  const [activeInsert, setActiveInsert] = useState<InsertCue | null>(null);
   const [masterVolume, setMasterVolume] = useState(0.86);
   const [blackout, setBlackout] = useState(false);
   const [operatorOpen, setOperatorOpen] = useState(() => !isProjectorWindow);
@@ -239,9 +279,10 @@ export default function Performance() {
   const loopsRef = useRef<Record<string, LoopHandle>>({});
   const allCues = useMemo(buildCues, []);
   const cueMap = useMemo(() => new Map(allCues.map((cue) => [cue.id, cue])), [allCues]);
+  const insertMap = useMemo(() => new Map(insertCues.map((insert) => [insert.id, insert])), []);
   const { ensureEngine, masterRef } = useSoundEngine(masterVolume);
-  const currentCue = performanceCues[cueIndex];
-  const nextCue = performanceCues[Math.min(performanceCues.length - 1, cueIndex + 1)];
+  const currentCue = mainPerformanceCues[cueIndex];
+  const nextCue = mainPerformanceCues[Math.min(mainPerformanceCues.length - 1, cueIndex + 1)];
 
   const stopAllSounds = useCallback((options: { fadeOutSeconds?: number; announce?: boolean } = {}) => {
     const engine = ensureEngine();
@@ -279,8 +320,23 @@ export default function Performance() {
     startCue();
   }, [cueMap, fireSoundCue, stopAllSounds]);
 
+  const clearInsert = useCallback(() => {
+    setActiveInsert(null);
+    setLastAction(`Insert cleared; remaining on ${currentCue.title}.`);
+  }, [currentCue.title]);
+
+  const showInsert = useCallback((insertId: InsertId) => {
+    const insert = insertMap.get(insertId);
+    if (!insert) return;
+    setActiveInsert((current) => current?.id === insertId ? null : insert);
+    setLastAction((previous) => {
+      void previous;
+      return activeInsert?.id === insertId ? `Insert cleared; remaining on ${currentCue.title}.` : `${insert.title}: ${insert.subtitle}`;
+    });
+  }, [activeInsert?.id, currentCue.title, insertMap]);
+
   const goToCue = useCallback((nextIndex: number, options: { playTransition?: boolean } = {}) => {
-    const bounded = clamp(nextIndex, 0, performanceCues.length - 1);
+    const bounded = clamp(nextIndex, 0, mainPerformanceCues.length - 1);
     if (bounded === cueIndex && !options.playTransition) return;
 
     if (transitionTimerRef.current) {
@@ -291,6 +347,8 @@ export default function Performance() {
       window.clearTimeout(settleTimerRef.current);
       settleTimerRef.current = null;
     }
+
+    setActiveInsert(null);
 
     if (options.playTransition) {
       setShowTransition(true);
@@ -304,23 +362,24 @@ export default function Performance() {
         setCueIndex(bounded);
         setIsSceneSettling(true);
         setShowTransition(false);
-        playPerformanceCue(performanceCues[bounded], { fadeOutSeconds: 0.95, startDelayMs: 180 });
+        playPerformanceCue(mainPerformanceCues[bounded], { fadeOutSeconds: 0.95, startDelayMs: 180 });
         settleTimerRef.current = window.setTimeout(() => setIsSceneSettling(false), 1200);
       }, 7600);
       return;
     }
 
-    setPreviousCue(performanceCues[cueIndex]);
+    setPreviousCue(mainPerformanceCues[cueIndex]);
     setCueIndex(bounded);
     setIsSceneSettling(true);
     setShowTransition(false);
-    playPerformanceCue(performanceCues[bounded], { fadeOutSeconds: 0.7, startDelayMs: 90 });
+    playPerformanceCue(mainPerformanceCues[bounded], { fadeOutSeconds: 0.7, startDelayMs: 90 });
     settleTimerRef.current = window.setTimeout(() => setIsSceneSettling(false), 980);
   }, [cueIndex, cueMap, fireSoundCue, playPerformanceCue, stopAllSounds]);
 
   const advance = useCallback(() => {
-    goToCue(cueIndex + 1);
-  }, [cueIndex, goToCue]);
+    const nextIndex = clamp(cueIndex + 1, 0, mainPerformanceCues.length - 1);
+    goToCue(nextIndex, { playTransition: currentCue.id === "horrible-chaos" && mainPerformanceCues[nextIndex]?.id === "kiss-restoration" });
+  }, [cueIndex, currentCue.id, goToCue]);
 
   const back = useCallback(() => {
     goToCue(cueIndex - 1);
@@ -346,7 +405,7 @@ export default function Performance() {
   };
 
   useEffect(() => {
-    playPerformanceCue(performanceCues[0]);
+    playPerformanceCue(mainPerformanceCues[0]);
     return () => {
       stopAllSounds();
       if (transitionTimerRef.current) window.clearTimeout(transitionTimerRef.current);
@@ -379,10 +438,16 @@ export default function Performance() {
       if (command.type === "goto" && typeof command.index === "number") {
         goToCue(command.index);
       }
+      if (command.type === "insert" && command.insertId) {
+        showInsert(command.insertId);
+      }
+      if (command.type === "clear-insert") {
+        clearInsert();
+      }
     };
     channel.addEventListener("message", onMessage);
     return () => channel.close();
-  }, [advance, back, goToCue, stopAllSounds]);
+  }, [advance, back, clearInsert, goToCue, showInsert, stopAllSounds]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -395,6 +460,10 @@ export default function Performance() {
       if (event.key === "ArrowLeft") {
         event.preventDefault();
         back();
+      }
+      if (event.key.toLowerCase() === "i") {
+        event.preventDefault();
+        clearInsert();
       }
       if (event.key.toLowerCase() === "b") {
         event.preventDefault();
@@ -410,16 +479,19 @@ export default function Performance() {
       }
       if (event.key === "Escape") {
         event.preventDefault();
-        if (document.fullscreenElement) void document.exitFullscreen();
+        if (activeInsert) clearInsert();
+        else if (document.fullscreenElement) void document.exitFullscreen();
         else navigate("/");
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [advance, back, navigate, stopAllSounds]);
+  }, [activeInsert, advance, back, clearInsert, navigate, stopAllSounds]);
+
+  const displayMood = activeInsert?.mood ?? currentCue.mood;
 
   return (
-    <main className={`performance-shell ${moodClass(currentCue.mood)} ${showTransition ? "transitioning-restoration" : ""} fixed inset-0 overflow-hidden bg-black text-[var(--limestone)]`}>
+    <main className={`performance-shell ${moodClass(displayMood)} ${showTransition ? "transitioning-restoration" : ""} fixed inset-0 overflow-hidden bg-black text-[var(--limestone)]`}>
       <style>{`
         .performance-shell::before {
           content: "";
@@ -448,6 +520,11 @@ export default function Performance() {
           50% { transform: translate3d(-1vw, -1.2vh, 0) scaleX(-1) rotate(-2deg); filter: saturate(.86); }
           76% { transform: translate3d(1.7vw, 1.2vh, 0) scaleX(-1) rotate(1deg); filter: saturate(1.02); }
           100% { transform: translate3d(0, 0, 0) scaleX(1) rotate(-1.5deg); filter: saturate(.9); }
+        }
+        .insert-current { animation: insertPopIn 240ms steps(2, end) both; }
+        @keyframes insertPopIn {
+          from { opacity: 0; filter: contrast(1.15) saturate(.74); transform: translate3d(.8vw,-.8vh,0) scale(1.012); }
+          to { opacity: 1; filter: contrast(1) saturate(1); transform: translate3d(0,0,0) scale(1); }
         }
         @keyframes stormFlash {
           0%, 15%, 18%, 52%, 55%, 100% { opacity: 0; }
@@ -511,6 +588,12 @@ export default function Performance() {
         )}
       </div>
 
+      {activeInsert && (
+        <div className="absolute inset-0 z-[18] bg-black" aria-label={`${activeInsert.title} active`}>
+          <InsertOverlay key={activeInsert.id} insert={activeInsert} />
+        </div>
+      )}
+
       <div className="storm-dust pointer-events-none absolute -inset-8 z-5 opacity-0 [background-image:radial-gradient(circle_at_25%_35%,rgba(220,174,89,.28),transparent_10%),radial-gradient(circle_at_70%_30%,rgba(243,223,181,.22),transparent_9%),repeating-linear-gradient(105deg,transparent_0_18px,rgba(0,0,0,.24)_18px_20px)]" />
       <div className="storm-flash pointer-events-none absolute inset-0 z-10 bg-[rgba(243,223,181,.78)] opacity-0 mix-blend-screen" />
       <div className="magic-glow pointer-events-none absolute inset-[10%] z-10 rounded-[50%] bg-[radial-gradient(circle,rgba(220,174,89,.42),rgba(199,131,104,.18)_38%,transparent_70%)] opacity-0 mix-blend-screen" />
@@ -526,13 +609,14 @@ export default function Performance() {
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[.24em] text-[rgba(247,224,185,.62)]">
                 <span>Performance Mode</span>
-                <span className="text-[var(--gold)]">Cue {cueIndex + 1} / {performanceCues.length}</span>
+                <span className="text-[var(--gold)]">Scene {cueIndex + 1} / {mainPerformanceCues.length}</span>
+                <span>{activeInsert ? `Insert: ${activeInsert.title}` : "No insert"}</span>
                 <span>{blackout ? "Blackout active" : isFullscreen ? "Fullscreen" : "Windowed"}</span>
                 {isProjectorWindow && <span className="text-[var(--gold)]">Remote controlled</span>}
               </div>
               <h1 className="mt-2 truncate font-display text-3xl text-[var(--limestone)]">{currentCue.title}</h1>
               <p className="mt-1 text-sm text-[rgba(247,224,185,.7)]">{lastAction}</p>
-              <p className="mt-2 text-xs uppercase tracking-[.22em] text-[rgba(220,174,89,.82)]">Next: {nextCue.id === currentCue.id ? "End of sequence" : nextCue.title}</p>
+              <p className="mt-2 text-xs uppercase tracking-[.22em] text-[rgba(220,174,89,.82)]">Next Scene: {nextCue.id === currentCue.id ? "End of sequence" : nextCue.title}</p>
             </div>
 
             <div className="flex flex-wrap items-center justify-start gap-2 lg:justify-end">
@@ -544,6 +628,9 @@ export default function Performance() {
               </Button>
               <Button type="button" className="rounded-xl border border-[rgba(236,190,120,.35)] bg-black/35 text-[var(--limestone)] hover:bg-[rgba(154,57,33,.64)]" onClick={(event) => { event.stopPropagation(); stopAllSounds(); }}>
                 <CircleStop className="mr-2 h-4 w-4" /> Stop
+              </Button>
+              <Button type="button" className="rounded-xl border border-[rgba(236,190,120,.35)] bg-black/35 text-[var(--limestone)] hover:bg-[rgba(220,174,89,.18)]" onClick={(event) => { event.stopPropagation(); clearInsert(); }}>
+                <X className="mr-2 h-4 w-4" /> Clear Insert
               </Button>
               <Button type="button" className="rounded-xl border border-[rgba(236,190,120,.35)] bg-black/35 text-[var(--limestone)] hover:bg-[rgba(220,174,89,.18)]" onClick={(event) => { event.stopPropagation(); setBlackout((current) => !current); }}>
                 <Eye className="mr-2 h-4 w-4" /> B
@@ -559,7 +646,7 @@ export default function Performance() {
 
           <div className="mt-4 grid gap-4 border-t border-[rgba(236,190,120,.18)] pt-4 md:grid-cols-[1fr_220px] md:items-center">
             <div className="flex flex-wrap gap-2">
-              {performanceCues.map((cue, index) => (
+              {mainPerformanceCues.map((cue, index) => (
                 <button
                   key={cue.id}
                   type="button"
@@ -576,8 +663,22 @@ export default function Performance() {
             </div>
           </div>
 
+          <div className="mt-4 grid grid-cols-5 gap-2 border-t border-[rgba(236,190,120,.18)] pt-4">
+            {insertCues.map((insert) => (
+              <button
+                key={insert.id}
+                type="button"
+                className={`rounded-xl border px-3 py-2 text-left transition ${activeInsert?.id === insert.id ? "border-[var(--gold)] bg-[rgba(220,174,89,.22)]" : "border-[rgba(236,190,120,.26)] bg-black/30 hover:bg-[rgba(220,174,89,.16)]"}`}
+                onClick={(event) => { event.stopPropagation(); showInsert(insert.id); }}
+              >
+                <span className="block font-display text-sm text-[var(--limestone)]">{insert.title.replace(" Insert", "")}</span>
+                <span className="mt-1 block text-[10px] uppercase tracking-[0.12em] text-[rgba(247,224,185,0.52)]">toggle insert</span>
+              </button>
+            ))}
+          </div>
+
           <p className="mt-3 text-xs text-[rgba(247,224,185,.58)]">
-            Controls: Space / Right Arrow advances, Left Arrow backs up, B toggles blackout, S stops sounds, O hides or shows this overlay, Esc exits fullscreen or returns to the Soundboard. In projector-window mode, the Soundboard window can also send Next, Back, Stop, Blackout, Overlay, and direct scene jumps. Hover the bottom edge to reveal hidden controls.
+            Controls: Space / Right Arrow advances the main scene, Left Arrow backs up, I clears the active insert, B toggles blackout, S stops sounds, O hides or shows this overlay, Esc clears an insert or exits. The Soundboard can separately send main-scene jumps and temporary insert toggles.
           </p>
         </div>
       </div>
