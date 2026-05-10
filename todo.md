@@ -171,3 +171,9 @@
 - [x] Rename the Queen insert control to Once Upon.
 - [x] Rename the 14 Days insert control to The Horror.
 - [x] Validate with `pnpm run check` and `pnpm run build`, then checkpoint and push.
+
+## Final Restoration Artwork Cleanup
+
+- [x] Locate every final post-kiss restoration scene reference that still uses the rubble-heavy restored scene.
+- [x] Upload the attached fully restored artwork through the web project asset workflow and use that asset for the final restoration scene.
+- [x] Validate with `pnpm run check` and `pnpm run build`, then checkpoint and push.

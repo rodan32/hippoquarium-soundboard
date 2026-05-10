@@ -72,7 +72,7 @@ const mainPerformanceCues: PerformanceCue[] = [
     title: "Kiss and Restoration",
     subtitle: "The video resolves into the restored scenic image and gentle repair music",
     layout: "image",
-    image: "/manus-storage/restoration_arc_scene_3_hippo_kiss_restoration_begins_c4369f89.png",
+    image: "/manus-storage/final-restoration-fully-restored-romance_fdee4e8e.webp",
     soundIds: ["restoration-loop"],
     mood: "restoration",
   },
@@ -244,7 +244,7 @@ function InsertOverlay({ insert }: { insert: InsertCue }) {
   const [candid] = insert.images ?? [];
   return (
     <div className={`${shellClass} grid place-items-center bg-[radial-gradient(circle_at_50%_46%,rgba(220,174,89,.18),transparent_38%),linear-gradient(135deg,#060504,#21130c_50%,#050403)]`}>
-      <img src="/manus-storage/restoration_arc_scene_4_fully_restored_romance_25131ddc.png" alt="Restored urn background" className="absolute inset-0 h-full w-full object-contain opacity-45" />
+      <img src="/manus-storage/final-restoration-fully-restored-romance_fdee4e8e.webp" alt="Fully restored urn background" className="absolute inset-0 h-full w-full object-contain opacity-45" />
       <figure className="relative w-[min(64vw,980px)] overflow-hidden rounded-[2rem] border border-[rgba(236,190,120,.5)] bg-black/55 p-4 shadow-[0_42px_120px_rgba(0,0,0,.65)]">
         <img src={candid} alt="Candid real love scenic insert" className="max-h-[72vh] w-full rounded-[1.3rem] object-cover opacity-86 sepia-[.08]" />
       </figure>
