@@ -85,8 +85,10 @@ export default function Performance() {
   const [operatorOpen, setOperatorOpen] = useState(() => !isProjectorWindow);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showTransition, setShowTransition] = useState(false);
+  const [isSceneSettling, setIsSceneSettling] = useState(false);
   const [lastAction, setLastAction] = useState(() => isProjectorWindow ? "Projector window ready. Click once to arm audio, then use the Soundboard window controls." : "Ready. Click stage or press Space to begin cueing.");
   const transitionTimerRef = useRef<number | null>(null);
+  const settleTimerRef = useRef<number | null>(null);
   const loopsRef = useRef<Record<string, LoopHandle>>({});
   const allCues = useMemo(buildCues, []);
   const cueMap = useMemo(() => new Map(allCues.map((cue) => [cue.id, cue])), [allCues]);
@@ -94,12 +96,12 @@ export default function Performance() {
   const currentCue = performanceCues[cueIndex];
   const nextCue = performanceCues[Math.min(performanceCues.length - 1, cueIndex + 1)];
 
-  const stopAllSounds = useCallback(() => {
+  const stopAllSounds = useCallback((options: { fadeOutSeconds?: number; announce?: boolean } = {}) => {
     const engine = ensureEngine();
     Object.values(loopsRef.current).forEach((stop) => stop());
-    engine.stopStock();
+    engine.stopStock(options.fadeOutSeconds ?? 0.58);
     loopsRef.current = {};
-    setLastAction("All sounds stopped.");
+    if (options.announce !== false) setLastAction("All sounds stopped.");
   }, [ensureEngine]);
 
   const fireSoundCue = useCallback((cue: Cue) => {
@@ -114,13 +116,20 @@ export default function Performance() {
     cue.builder(engine);
   }, [ensureEngine]);
 
-  const playPerformanceCue = useCallback((cue: PerformanceCue) => {
-    stopAllSounds();
-    cue.soundIds.forEach((soundId) => {
-      const soundCue = cueMap.get(soundId);
-      if (soundCue) fireSoundCue(soundCue);
-    });
-    setLastAction(`${cue.title}: ${cue.subtitle}`);
+  const playPerformanceCue = useCallback((cue: PerformanceCue, options: { fadeOutSeconds?: number; startDelayMs?: number } = {}) => {
+    stopAllSounds({ fadeOutSeconds: options.fadeOutSeconds ?? 0.68, announce: false });
+    const startCue = () => {
+      cue.soundIds.forEach((soundId) => {
+        const soundCue = cueMap.get(soundId);
+        if (soundCue) fireSoundCue(soundCue);
+      });
+      setLastAction(`${cue.title}: ${cue.subtitle}`);
+    };
+    if (options.startDelayMs && options.startDelayMs > 0) {
+      window.setTimeout(startCue, options.startDelayMs);
+      return;
+    }
+    startCue();
   }, [cueMap, fireSoundCue, stopAllSounds]);
 
   const goToCue = useCallback((nextIndex: number, options: { playTransition?: boolean } = {}) => {
@@ -131,26 +140,34 @@ export default function Performance() {
       window.clearTimeout(transitionTimerRef.current);
       transitionTimerRef.current = null;
     }
+    if (settleTimerRef.current) {
+      window.clearTimeout(settleTimerRef.current);
+      settleTimerRef.current = null;
+    }
 
     if (options.playTransition) {
       setShowTransition(true);
       setLastAction("Playing chaos-to-restoration transition video.");
-      stopAllSounds();
+      stopAllSounds({ fadeOutSeconds: 0.9, announce: false });
       const kissCue = cueMap.get("hippo-kiss");
       if (kissCue) fireSoundCue(kissCue);
       transitionTimerRef.current = window.setTimeout(() => {
         setPreviousImage(performanceCues[cueIndex].image);
         setCueIndex(bounded);
+        setIsSceneSettling(true);
         setShowTransition(false);
-        playPerformanceCue(performanceCues[bounded]);
-      }, 7900);
+        playPerformanceCue(performanceCues[bounded], { fadeOutSeconds: 0.95, startDelayMs: 180 });
+        settleTimerRef.current = window.setTimeout(() => setIsSceneSettling(false), 1200);
+      }, 7600);
       return;
     }
 
     setPreviousImage(performanceCues[cueIndex].image);
     setCueIndex(bounded);
+    setIsSceneSettling(true);
     setShowTransition(false);
-    playPerformanceCue(performanceCues[bounded]);
+    playPerformanceCue(performanceCues[bounded], { fadeOutSeconds: 0.7, startDelayMs: 90 });
+    settleTimerRef.current = window.setTimeout(() => setIsSceneSettling(false), 980);
   }, [cueIndex, cueMap, fireSoundCue, playPerformanceCue, stopAllSounds]);
 
   const advance = useCallback(() => {
@@ -189,6 +206,7 @@ export default function Performance() {
     return () => {
       stopAllSounds();
       if (transitionTimerRef.current) window.clearTimeout(transitionTimerRef.current);
+      if (settleTimerRef.current) window.clearTimeout(settleTimerRef.current);
     };
   }, []);
 
@@ -281,9 +299,33 @@ export default function Performance() {
           from { transform: translate3d(-2%, -1%, 0) rotate(0deg); }
           to { transform: translate3d(2%, 1%, 0) rotate(1deg); }
         }
+        .scene-previous { animation: sceneFadeOut 980ms ease-in-out forwards; }
+        .scene-current { animation: sceneFadeIn 980ms ease-in-out both; }
+        .scene-settling::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          z-index: 6;
+          background: radial-gradient(circle at 50% 42%, rgba(243,223,181,.16), transparent 36%, rgba(0,0,0,.2) 100%);
+          animation: settleWash 1100ms ease-out forwards;
+        }
+        .transition-video { animation: sceneFadeIn 700ms ease-out both; }
         @keyframes magicBreathe {
           0%, 100% { filter: blur(24px); transform: scale(1); }
           50% { filter: blur(34px); transform: scale(1.035); }
+        }
+        @keyframes sceneFadeIn {
+          from { opacity: 0; filter: blur(8px) saturate(.86); transform: scale(1.012); }
+          to { opacity: 1; filter: blur(0) saturate(1); transform: scale(1); }
+        }
+        @keyframes sceneFadeOut {
+          from { opacity: 1; filter: blur(0) saturate(1); transform: scale(1); }
+          to { opacity: 0; filter: blur(10px) saturate(.72); transform: scale(.992); }
+        }
+        @keyframes settleWash {
+          0% { opacity: .92; }
+          100% { opacity: 0; }
         }
       `}</style>
 
@@ -294,13 +336,13 @@ export default function Performance() {
         onClick={advance}
       />
 
-      <div className="absolute inset-0 z-0 bg-black">
+      <div className={`absolute inset-0 z-0 bg-black ${isSceneSettling ? "scene-settling" : ""}`}>
         {previousImage && !showTransition && (
           <img
             key={`previous-${previousImage}`}
             src={previousImage}
             alt="Previous Hippoquarium scene"
-            className="absolute inset-0 h-full w-full object-contain opacity-0 transition-opacity duration-[800ms]"
+            className="scene-previous absolute inset-0 h-full w-full object-contain"
           />
         )}
         {showTransition ? (
@@ -310,14 +352,14 @@ export default function Performance() {
             autoPlay
             muted
             playsInline
-            className="absolute inset-0 h-full w-full bg-black object-contain"
+            className="transition-video absolute inset-0 h-full w-full bg-black object-contain"
           />
         ) : (
           <img
             key={currentCue.image}
             src={currentCue.image}
             alt={currentCue.title}
-            className="absolute inset-0 h-full w-full object-contain opacity-100 transition-opacity duration-[800ms]"
+            className="scene-current absolute inset-0 h-full w-full object-contain"
           />
         )}
       </div>

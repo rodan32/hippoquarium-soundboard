@@ -26,7 +26,7 @@ export type SoundEngine = {
   playTone: (freq: number, duration: number, type?: OscillatorType, gain?: number, when?: number) => void;
   playSweep: (from: number, to: number, duration: number, gain?: number, when?: number, type?: OscillatorType) => void;
   playStock: (id: StockCueId, gain?: number, whenOffset?: number, offset?: number) => void;
-  stopStock: () => void;
+  stopStock: (fadeOutSeconds?: number) => void;
   createLoop: (kind: "tornado" | "rumble" | "restoration" | "preshow") => LoopHandle;
 };
 
@@ -72,7 +72,7 @@ export function useSoundEngine(masterVolume: number) {
   const masterRef = useRef<GainNode | null>(null);
   const stockBuffersRef = useRef<Partial<Record<StockCueId, AudioBuffer>>>({});
   const stockLoadsRef = useRef<Partial<Record<StockCueId, Promise<AudioBuffer>>>>({});
-  const activeStockRef = useRef<Set<AudioBufferSourceNode>>(new Set());
+  const activeStockRef = useRef<Set<{ source: AudioBufferSourceNode; gain: GainNode }>>(new Set());
 
   const ensureEngine = (): SoundEngine => {
     if (!ctxRef.current) {
@@ -134,15 +134,18 @@ export function useSoundEngine(masterVolume: number) {
       });
     };
 
-    const stopStock = () => {
-      activeStockRef.current.forEach((source) => {
+    const stopStock = (fadeOutSeconds = 0.42) => {
+      const stopAt = ctx.currentTime + Math.max(0.03, fadeOutSeconds);
+      activeStockRef.current.forEach((voice) => {
         try {
-          source.stop();
+          voice.gain.gain.cancelScheduledValues(ctx.currentTime);
+          voice.gain.gain.setTargetAtTime(0.0001, ctx.currentTime, Math.max(0.025, fadeOutSeconds / 3));
+          voice.source.stop(stopAt + 0.08);
         } catch {
           // The source may already have completed; removing it below is enough.
         }
       });
-      activeStockRef.current.clear();
+      window.setTimeout(() => activeStockRef.current.clear(), Math.ceil((fadeOutSeconds + 0.12) * 1000));
     };
 
     const playStock = (id: StockCueId, gain = 0.75, whenOffset = 0, offset = 0) => {
@@ -152,13 +155,16 @@ export function useSoundEngine(masterVolume: number) {
           const amp = ctx.createGain();
           const when = ctx.currentTime + whenOffset;
           source.buffer = buffer;
+          const targetGain = Math.max(0.001, gain);
+          const attack = id === "closeThunder" || id === "cinematicImpact" || id === "golemStomp" ? 0.02 : 0.16;
           amp.gain.setValueAtTime(0.0001, when);
-          amp.gain.exponentialRampToValueAtTime(Math.max(0.001, gain), when + 0.035);
-          amp.gain.setTargetAtTime(Math.max(0.001, gain) * 0.86, when + 0.12, 0.35);
+          amp.gain.exponentialRampToValueAtTime(targetGain, when + attack);
+          amp.gain.setTargetAtTime(targetGain * 0.86, when + attack + 0.12, 0.45);
           source.connect(amp);
           amp.connect(master);
-          source.onended = () => activeStockRef.current.delete(source);
-          activeStockRef.current.add(source);
+          const voice = { source, gain: amp };
+          source.onended = () => activeStockRef.current.delete(voice);
+          activeStockRef.current.add(voice);
           source.start(when, offset);
         })
         .catch(() => undefined);
@@ -271,7 +277,7 @@ export function useSoundEngine(masterVolume: number) {
       return () => {
         stopped = true;
         timers.forEach(window.clearTimeout);
-        if (kind !== "preshow") stopStock();
+        if (kind !== "preshow") stopStock(0.62);
       };
     };
 

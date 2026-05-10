@@ -66,3 +66,12 @@
 - [ ] Add helpful projection-window guidance so the Performance Mode window can be fullscreened independently.
 - [ ] Validate TypeScript and production build after the navigation update.
 - [ ] Save a checkpoint and push the two-window workflow update to GitHub.
+
+## Transition Smoothing Review
+
+- [ ] Review Performance Mode cue-change logic for abrupt image swaps, blackout timing, remote command timing, and transition overlay behavior.
+- [ ] Review stock-audio and generated-audio start/stop behavior for sudden cutoffs, overlapping impacts, and missing fade-outs.
+- [ ] Smooth visual transitions without making operator controls sluggish.
+- [ ] Smooth audio entrances and exits while preserving the larger stock-sound cue impact.
+- [ ] Validate TypeScript and production build after transition changes.
+- [ ] Save a checkpoint and push the transition-smoothing update.
