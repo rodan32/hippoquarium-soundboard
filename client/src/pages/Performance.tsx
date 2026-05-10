@@ -152,7 +152,9 @@ export default function Performance() {
       const kissCue = cueMap.get("hippo-kiss");
       if (kissCue) fireSoundCue(kissCue);
       transitionTimerRef.current = window.setTimeout(() => {
-        setPreviousImage(performanceCues[cueIndex].image);
+        // The transition video already carries the chaos-to-restoration image.
+        // Do not fade the old chaos still back over the kiss/restoration scene after it ends.
+        setPreviousImage(null);
         setCueIndex(bounded);
         setIsSceneSettling(true);
         setShowTransition(false);
@@ -275,7 +277,7 @@ export default function Performance() {
   }, [advance, back, navigate, stopAllSounds]);
 
   return (
-    <main className={`performance-shell ${moodClass(currentCue.mood)} fixed inset-0 overflow-hidden bg-black text-[var(--limestone)]`}>
+    <main className={`performance-shell ${moodClass(currentCue.mood)} ${showTransition ? "transitioning-restoration" : ""} fixed inset-0 overflow-hidden bg-black text-[var(--limestone)]`}>
       <style>{`
         .performance-shell::before {
           content: "";
@@ -288,6 +290,8 @@ export default function Performance() {
         .storm-active .storm-flash { animation: stormFlash 3.2s infinite steps(1, end); }
         .armageddon-active .storm-flash { animation-duration: 2.2s; }
         .storm-active .storm-dust { opacity: .42; animation: stormDrift 9s linear infinite; }
+        .transitioning-restoration .storm-flash, .transitioning-restoration .storm-dust { animation: none; opacity: 0; }
+        .transitioning-restoration .magic-glow { opacity: .42; animation: magicBreathe 4.2s ease-in-out infinite; }
         .magic-active .magic-glow, .romance-active .magic-glow { opacity: .56; animation: magicBreathe 4.2s ease-in-out infinite; }
         .romance-active .magic-glow { opacity: .72; }
         @keyframes stormFlash {

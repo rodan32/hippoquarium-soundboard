@@ -75,3 +75,9 @@
 - [ ] Smooth audio entrances and exits while preserving the larger stock-sound cue impact.
 - [ ] Validate TypeScript and production build after transition changes.
 - [ ] Save a checkpoint and push the transition-smoothing update.
+
+## Narrative Continuity Fix
+
+- [x] Inspect Performance Mode cue scene order and confirm why the kiss/restoration sequence briefly returns to chaos imagery.
+- [x] Reorder or remap the Performance Mode scenes so the narrative flows from disaster into kiss, restoration, laurel bloom, and finale without visual regression.
+- [x] Validate the fix with `pnpm run check` and `pnpm run build`, then save a checkpoint and push to GitHub.
