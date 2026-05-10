@@ -57,3 +57,12 @@
 - [ ] Add source and license notes for every integrated stock audio file.
 - [ ] Validate TypeScript and production build after integration.
 - [ ] Save a checkpoint and push the stock-sound update to GitHub.
+
+## Two-Window Soundboard and Performance Workflow
+
+- [ ] Inspect the current soundboard and Performance Mode navigation controls.
+- [ ] Add a clear control on the manual soundboard to open Performance Mode in a separate projector window.
+- [ ] Keep the manual soundboard available in the original operator window after launching the projection window.
+- [ ] Add helpful projection-window guidance so the Performance Mode window can be fullscreened independently.
+- [ ] Validate TypeScript and production build after the navigation update.
+- [ ] Save a checkpoint and push the two-window workflow update to GitHub.

@@ -7,6 +7,12 @@ import { Slider } from "@/components/ui/slider";
 import { buildCues, clamp, type Cue, type LoopHandle, useSoundEngine } from "@/hooks/useSoundEngine";
 import { CircleStop, Eye, Maximize, Minimize, SkipBack, SkipForward, Volume2 } from "lucide-react";
 
+type ProjectionCommand = {
+  source?: string;
+  type?: "next" | "back" | "blackout" | "stop" | "overlay" | "goto";
+  index?: number;
+};
+
 type PerformanceCue = {
   id: string;
   title: string;
@@ -71,14 +77,15 @@ function moodClass(mood: PerformanceCue["mood"]) {
 
 export default function Performance() {
   const [, navigate] = useLocation();
+  const isProjectorWindow = useMemo(() => new URLSearchParams(window.location.search).get("projector") === "1", []);
   const [cueIndex, setCueIndex] = useState(0);
   const [previousImage, setPreviousImage] = useState<string | null>(null);
   const [masterVolume, setMasterVolume] = useState(0.86);
   const [blackout, setBlackout] = useState(false);
-  const [operatorOpen, setOperatorOpen] = useState(true);
+  const [operatorOpen, setOperatorOpen] = useState(() => !isProjectorWindow);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showTransition, setShowTransition] = useState(false);
-  const [lastAction, setLastAction] = useState("Ready. Click stage or press Space to begin cueing.");
+  const [lastAction, setLastAction] = useState(() => isProjectorWindow ? "Projector window ready. Click once to arm audio, then use the Soundboard window controls." : "Ready. Click stage or press Space to begin cueing.");
   const transitionTimerRef = useRef<number | null>(null);
   const loopsRef = useRef<Record<string, LoopHandle>>({});
   const allCues = useMemo(buildCues, []);
@@ -190,6 +197,30 @@ export default function Performance() {
     document.addEventListener("fullscreenchange", onFullscreenChange);
     return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
   }, []);
+
+  useEffect(() => {
+    const channel = new BroadcastChannel("hippoquarium-performance-control");
+    const onMessage = (event: MessageEvent<ProjectionCommand>) => {
+      const command = event.data;
+      if (command?.source !== "soundboard") return;
+      if (command.type === "next") advance();
+      if (command.type === "back") back();
+      if (command.type === "stop") stopAllSounds();
+      if (command.type === "blackout") {
+        setBlackout((current) => !current);
+        setLastAction("Blackout toggled from the Soundboard window.");
+      }
+      if (command.type === "overlay") {
+        setOperatorOpen((current) => !current);
+        setLastAction("Operator overlay toggled from the Soundboard window.");
+      }
+      if (command.type === "goto" && typeof command.index === "number") {
+        goToCue(command.index);
+      }
+    };
+    channel.addEventListener("message", onMessage);
+    return () => channel.close();
+  }, [advance, back, goToCue, stopAllSounds]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -308,6 +339,7 @@ export default function Performance() {
                 <span>Performance Mode</span>
                 <span className="text-[var(--gold)]">Cue {cueIndex + 1} / {performanceCues.length}</span>
                 <span>{blackout ? "Blackout active" : isFullscreen ? "Fullscreen" : "Windowed"}</span>
+                {isProjectorWindow && <span className="text-[var(--gold)]">Remote controlled</span>}
               </div>
               <h1 className="mt-2 truncate font-display text-3xl text-[var(--limestone)]">{currentCue.title}</h1>
               <p className="mt-1 text-sm text-[rgba(247,224,185,.7)]">{lastAction}</p>
@@ -356,7 +388,7 @@ export default function Performance() {
           </div>
 
           <p className="mt-3 text-xs text-[rgba(247,224,185,.58)]">
-            Controls: Space / Right Arrow advances, Left Arrow backs up, B toggles blackout, S stops sounds, O hides or shows this overlay, Esc exits fullscreen or returns to the Soundboard. Hover the bottom edge to reveal hidden controls.
+            Controls: Space / Right Arrow advances, Left Arrow backs up, B toggles blackout, S stops sounds, O hides or shows this overlay, Esc exits fullscreen or returns to the Soundboard. In projector-window mode, the Soundboard window can also send Next, Back, Stop, Blackout, and Overlay commands. Hover the bottom edge to reveal hidden controls.
           </p>
         </div>
       </div>

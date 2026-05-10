@@ -2,7 +2,7 @@
  * Design philosophy: Ancient Greek black-figure pottery adapted into a backstage cue console.
  * This page must reinforce the approved terracotta urn style while remaining practical for fast theatrical cueing.
  */
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "wouter";
 import { buildCues, clamp, type Category, type Cue, type LoopHandle, useSoundEngine } from "@/hooks/useSoundEngine";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import {
   Bolt,
   CircleStop,
   Heart,
+  MonitorUp,
   Music2,
   Play,
   RotateCcw,
@@ -46,9 +47,40 @@ export default function Home() {
   const [armed, setArmed] = useState(false);
   const [lastCue, setLastCue] = useState("None yet");
   const [activeLoops, setActiveLoops] = useState<Record<string, boolean>>({});
+  const [projectionStatus, setProjectionStatus] = useState("Projection window not opened yet.");
   const loopsRef = useRef<Record<string, LoopHandle>>({});
+  const projectionChannelRef = useRef<BroadcastChannel | null>(null);
   const { ensureEngine, masterRef } = useSoundEngine(masterVolume);
   const cues = useMemo(buildCues, []);
+
+  useEffect(() => {
+    return () => {
+      projectionChannelRef.current?.close();
+    };
+  }, []);
+
+  const getProjectionChannel = () => {
+    if (!projectionChannelRef.current) {
+      projectionChannelRef.current = new BroadcastChannel("hippoquarium-performance-control");
+    }
+    return projectionChannelRef.current;
+  };
+
+  const sendProjectionCommand = (type: "next" | "back" | "blackout" | "stop" | "overlay") => {
+    getProjectionChannel().postMessage({ source: "soundboard", type, at: Date.now() });
+    const label = type === "next" ? "next cue" : type === "back" ? "previous cue" : type;
+    setProjectionStatus(`Sent ${label} to the projection window.`);
+  };
+
+  const openProjectionWindow = () => {
+    const projector = window.open("/performance?projector=1", "hippoquarium-performance", "popup=yes,width=1280,height=760,left=80,top=40");
+    if (projector) {
+      projector.focus();
+      setProjectionStatus("Projection window opened. Move it to the projector display, then click Fullscreen in that window.");
+      return;
+    }
+    setProjectionStatus("The browser blocked the projection popup. Allow popups for this site, or open Performance Mode manually.");
+  };
 
   const setVolume = (value: number[]) => {
     const next = clamp((value[0] ?? 72) / 100, 0, 1);
@@ -144,12 +176,29 @@ export default function Home() {
               </p>
             </div>
 
-            <Link
-              href="/performance"
-              className="mt-4 flex min-h-14 items-center justify-center rounded-2xl border border-[rgba(236,190,120,0.5)] bg-[rgba(220,174,89,0.14)] px-4 text-center font-display text-base text-[var(--gold)] transition hover:bg-[rgba(220,174,89,0.22)] hover:text-[var(--limestone)]"
-            >
-              Open Performance Mode
-            </Link>
+            <div className="mt-4 rounded-2xl border border-[rgba(236,190,120,0.26)] bg-black/25 p-3">
+              <Button
+                type="button"
+                className="h-13 w-full rounded-2xl bg-[rgba(220,174,89,0.18)] font-display text-base text-[var(--gold)] hover:bg-[rgba(220,174,89,0.28)] hover:text-[var(--limestone)]"
+                onClick={openProjectionWindow}
+              >
+                <MonitorUp className="mr-2 h-4 w-4" /> Open Projector Window
+              </Button>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <Button type="button" className="rounded-xl bg-[rgba(243,223,181,0.1)] text-[var(--limestone)] hover:bg-[rgba(243,223,181,0.18)]" onClick={() => sendProjectionCommand("back")}>Back</Button>
+                <Button type="button" className="rounded-xl bg-[var(--gold)] text-[var(--urn-black)] hover:bg-[var(--rose)]" onClick={() => sendProjectionCommand("next")}>Next</Button>
+                <Button type="button" className="rounded-xl border border-[rgba(236,190,120,0.32)] bg-black/35 text-[var(--limestone)] hover:bg-[rgba(154,57,33,0.64)]" onClick={() => sendProjectionCommand("stop")}>Stop</Button>
+                <Button type="button" className="rounded-xl border border-[rgba(236,190,120,0.32)] bg-black/35 text-[var(--limestone)] hover:bg-[rgba(220,174,89,0.18)]" onClick={() => sendProjectionCommand("blackout")}>Blackout</Button>
+              </div>
+              <Button type="button" className="mt-2 w-full rounded-xl border border-[rgba(236,190,120,0.32)] bg-black/35 text-[var(--limestone)] hover:bg-[rgba(220,174,89,0.18)]" onClick={() => sendProjectionCommand("overlay")}>Toggle Projector Overlay</Button>
+              <p className="mt-3 text-xs leading-5 text-[rgba(247,224,185,0.62)]">{projectionStatus}</p>
+              <Link
+                href="/performance"
+                className="mt-2 block text-center text-xs uppercase tracking-[0.18em] text-[rgba(220,174,89,0.82)] transition hover:text-[var(--limestone)]"
+              >
+                Open in this window instead
+              </Link>
+            </div>
 
             <div className="mt-4 flex gap-3">
               <img src={stormEmblem} alt="Storm cue emblem" className="h-20 w-20 rounded-2xl border border-[rgba(236,190,120,0.28)] object-cover" />
