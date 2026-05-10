@@ -14,3 +14,20 @@
 - [ ] Verify the current Git push state after the earlier SSH host-key prompt.
 - [ ] Ensure the current main branch is available on the public GitHub repository.
 - [ ] Share the public repository URL with collaboration notes.
+
+## Fullscreen Performance Website Concept
+
+- [ ] Describe a single fullscreen operator website that combines backdrops, animated transitions, and sound cues.
+- [ ] Define a simple keyboard and mouse cueing model suitable for rehearsal or performance.
+- [ ] Explain how the audience-facing projection view and operator controls should be presented.
+- [ ] Identify practical implementation steps if the concept is approved.
+
+## Performance Mode Build
+
+- [ ] Preserve the existing manual soundboard as the rehearsal and emergency-cue page.
+- [ ] Add a separate Performance Mode view for fullscreen cue playback.
+- [ ] Define a cue stack that coordinates backdrop visuals, transition video, audio effects, and timing notes.
+- [ ] Add keyboard and mouse controls for next cue, previous cue, blackout, stop all audio, and operator overlay toggle.
+- [ ] Keep audience-facing projection clean, with operator controls hidden unless requested.
+- [ ] Run TypeScript and production build checks after implementation.
+- [ ] Save a checkpoint and report the updated app link with operating instructions.
