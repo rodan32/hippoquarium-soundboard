@@ -7,7 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { buildCues, clamp, type Cue, type LoopHandle, useSoundEngine } from "@/hooks/useSoundEngine";
 import { CircleStop, Eye, Maximize, Minimize, SkipBack, SkipForward, Volume2, X } from "lucide-react";
 
-type InsertId = "real-love" | "queen" | "lithuania" | "fourteen-days" | "sirens";
+type InsertId = "queen" | "lithuania" | "fourteen-days" | "sirens";
 
 type ProjectionCommand = {
   source?: string;
@@ -88,17 +88,9 @@ const mainPerformanceCues: PerformanceCue[] = [
 
 const insertCues: InsertCue[] = [
   {
-    id: "real-love",
-    title: "Real Love Insert",
-    subtitle: "Candid real-love photo insert",
-    layout: "candid",
-    images: ["/manus-storage/real-love-candid_291ec79c.webp"],
-    mood: "romance",
-  },
-  {
     id: "queen",
-    title: "Queen Insert",
-    subtitle: "Queen Returns photo insert",
+    title: "Once Upon Insert",
+    subtitle: "Once-upon photo insert",
     layout: "queen",
     images: ["/manus-storage/young-love-bench_02e96a39.webp", "/manus-storage/real-love-candid_291ec79c.webp"],
     mood: "romance",
@@ -118,8 +110,8 @@ const insertCues: InsertCue[] = [
   },
   {
     id: "fourteen-days",
-    title: "14 Days Insert",
-    subtitle: "Domestic survival photo insert",
+    title: "The Horror Insert",
+    subtitle: "The Horror photo insert",
     layout: "photo-duet",
     images: ["/manus-storage/chores-laundry-basement_8746936e.webp", "/manus-storage/chores-outdoor-dishes_20ffaef0.webp"],
     mood: "domestic",
@@ -236,7 +228,7 @@ function InsertOverlay({ insert }: { insert: InsertCue }) {
     const [young, candid] = insert.images ?? [];
     return (
       <div className={`${shellClass} bg-[radial-gradient(circle_at_50%_48%,rgba(220,174,89,.18),transparent_38%),linear-gradient(135deg,#080604,#24140d_58%,#050403)]`}>
-        <img src={urnImage} alt="Urn texture behind Queen Returns" className="absolute inset-0 h-full w-full object-contain opacity-[.14]" />
+        <img src={urnImage} alt="Urn texture behind Once Upon" className="absolute inset-0 h-full w-full object-contain opacity-[.14]" />
         <div className="absolute inset-[8%] grid grid-cols-[.95fr_1.05fr] items-center gap-[4vw]">
           <figure className="overflow-hidden rounded-[2rem] border border-[rgba(236,190,120,.5)] bg-black/40 shadow-2xl -rotate-2">
             <img src={young} alt="Young couple scenic insert" className="h-[70vh] w-full object-cover opacity-86 sepia-[.12]" />

@@ -33,7 +33,7 @@ type ProjectionSceneJump = {
 };
 
 type ProjectionInsertJump = {
-  id: "real-love" | "queen" | "lithuania" | "fourteen-days" | "sirens";
+  id: "queen" | "lithuania" | "fourteen-days" | "sirens";
   label: string;
   shortLabel: string;
   note: string;
@@ -48,10 +48,9 @@ const projectionSceneJumps: ProjectionSceneJump[] = [
 ];
 
 const projectionInsertJumps: ProjectionInsertJump[] = [
-  { id: "real-love", label: "Real Love Insert", shortLabel: "Real Love", note: "insert" },
-  { id: "queen", label: "Queen Insert", shortLabel: "Queen", note: "insert" },
+  { id: "queen", label: "Once Upon Insert", shortLabel: "Once Upon", note: "insert" },
   { id: "lithuania", label: "Lithuania Insert", shortLabel: "Lithuania", note: "insert" },
-  { id: "fourteen-days", label: "14 Days Insert", shortLabel: "14 Days", note: "insert" },
+  { id: "fourteen-days", label: "The Horror Insert", shortLabel: "The Horror", note: "insert" },
   { id: "sirens", label: "Queen Kathleen Sirens Overlay", shortLabel: "Queen Kathleen", note: "Sirens" },
 ];
 

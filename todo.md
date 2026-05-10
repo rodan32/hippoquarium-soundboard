@@ -164,3 +164,10 @@
 - [x] Make Stop All silence scenery-level or scene-owned sounds in addition to manual soundboard cues.
 - [x] Remove the weird looping piston-like sound from the Begin scene while preserving intended visual flow.
 - [x] Validate with `pnpm run check` and `pnpm run build`, then checkpoint and push.
+
+## Insert Control Label Cleanup
+
+- [x] Delete the Real Love insert from the main operator insert controls.
+- [x] Rename the Queen insert control to Once Upon.
+- [x] Rename the 14 Days insert control to The Horror.
+- [x] Validate with `pnpm run check` and `pnpm run build`, then checkpoint and push.
