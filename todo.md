@@ -156,3 +156,11 @@
 - [x] Inspect Q6 Kiss Cue and Q7 Restoration Underscore for remaining ominous brass, doom-horn stock layers, or low synthetic horn-like tones.
 - [x] Remove or replace those layers so Q6 reads as a clean comic kiss/magic handoff and Q7 reads as gentle restoration underscoring.
 - [x] Validate with `pnpm run check` and `pnpm run build`, then checkpoint and push.
+
+## Sirens Overlay and Global Audio Cleanup
+
+- [x] Add a main Soundboard-section button that triggers the Queen Kathleen Sirens overlay without requiring Performance Mode operator controls.
+- [x] Center the Queen Kathleen animation, remove the duplicate frame/visual frame treatment on the insert, and prevent flicker when the cutout reverses direction.
+- [x] Make Stop All silence scenery-level or scene-owned sounds in addition to manual soundboard cues.
+- [x] Remove the weird looping piston-like sound from the Begin scene while preserving intended visual flow.
+- [x] Validate with `pnpm run check` and `pnpm run build`, then checkpoint and push.

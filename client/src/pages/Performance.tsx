@@ -52,10 +52,10 @@ const mainPerformanceCues: PerformanceCue[] = [
   {
     id: "catastrophe-begins",
     title: "Beginning of the Catastrophe",
-    subtitle: "A steady storm bed starts under the first visible damage",
+    subtitle: "Silent visual setup for the first visible damage",
     layout: "image",
     image: "/manus-storage/restoration_arc_scene_1_chaotic_wreckage_2087ae51.png",
-    soundIds: ["tornado"],
+    soundIds: [],
     mood: "chaos",
   },
   {
@@ -187,10 +187,9 @@ function InsertOverlay({ insert }: { insert: InsertCue }) {
     return (
       <div className={`${shellClass} bg-[radial-gradient(circle_at_70%_35%,rgba(220,174,89,.18),transparent_28%),linear-gradient(135deg,#100b08,#27160e_48%,#050403)]`}>
         <img src={urnImage} alt="Grecian urn backdrop" className="absolute inset-0 h-full w-full object-contain opacity-[.2]" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.14),transparent_32%,transparent_68%,rgba(0,0,0,.28))]" />
-        <div className="absolute left-[7vw] top-[9vh] h-[78vh] w-[46vw] rounded-[3rem] border border-[rgba(236,190,120,.22)] bg-[rgba(236,190,120,.045)] shadow-[0_0_80px_rgba(220,174,89,.08)]" />
-        <figure className="kathleen-crappy-video absolute right-[10vw] top-[11vh] w-[min(36vw,560px)] overflow-hidden rounded-[.25rem] border-[6px] border-black bg-black shadow-[0_34px_90px_rgba(0,0,0,.62)]">
-          <img src={insert.image} alt="Kathleen photo projected as a deliberately crude bouncing video gag" className="block h-[68vh] w-full object-cover opacity-92 contrast-[1.04] saturate-[.94]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_48%,transparent_0_34%,rgba(0,0,0,.22)_72%,rgba(0,0,0,.46)_100%)]" />
+        <figure className="kathleen-crappy-video absolute left-1/2 top-1/2 w-[min(40vw,620px)] -translate-x-1/2 -translate-y-1/2 overflow-visible shadow-[0_34px_90px_rgba(0,0,0,.44)]">
+          <img src={insert.image} alt="Kathleen photo projected as a deliberately crude bouncing video gag" className="block h-[70vh] w-full object-cover opacity-92 contrast-[1.04] saturate-[.94]" />
         </figure>
       </div>
     );
@@ -511,16 +510,16 @@ export default function Performance() {
         .romance-active .magic-glow { opacity: .72; }
         .temptation-active .magic-glow { opacity: .18; animation: magicBreathe 5.4s ease-in-out infinite; }
         .kathleen-crappy-video {
-          transform-origin: 50% 82%;
-          animation: kathleenCrappyBounce 1850ms steps(2, end) infinite;
-          will-change: transform, filter;
+          transform-origin: 50% 78%;
+          animation: kathleenCrappyBounce 2100ms steps(2, end) infinite;
+          will-change: transform;
         }
         @keyframes kathleenCrappyBounce {
-          0% { transform: translate3d(0, 0, 0) scaleX(1) rotate(-1.5deg); filter: saturate(.9); }
-          24% { transform: translate3d(-2vw, 1.6vh, 0) scaleX(1) rotate(1.5deg); filter: saturate(1.04); }
-          50% { transform: translate3d(-1vw, -1.2vh, 0) scaleX(-1) rotate(-2deg); filter: saturate(.86); }
-          76% { transform: translate3d(1.7vw, 1.2vh, 0) scaleX(-1) rotate(1deg); filter: saturate(1.02); }
-          100% { transform: translate3d(0, 0, 0) scaleX(1) rotate(-1.5deg); filter: saturate(.9); }
+          0% { transform: translate3d(-50%, -50%, 0) rotate(-1.5deg); }
+          25% { transform: translate3d(calc(-50% - 1.6vw), calc(-50% + 1.2vh), 0) rotate(1.25deg); }
+          50% { transform: translate3d(calc(-50% - .4vw), calc(-50% - 1vh), 0) rotate(-1deg); }
+          75% { transform: translate3d(calc(-50% + 1.5vw), calc(-50% + 1vh), 0) rotate(1deg); }
+          100% { transform: translate3d(-50%, -50%, 0) rotate(-1.5deg); }
         }
         .insert-current { animation: insertPopIn 240ms steps(2, end) both; }
         @keyframes insertPopIn {

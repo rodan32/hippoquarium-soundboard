@@ -52,7 +52,7 @@ const projectionInsertJumps: ProjectionInsertJump[] = [
   { id: "queen", label: "Queen Insert", shortLabel: "Queen", note: "insert" },
   { id: "lithuania", label: "Lithuania Insert", shortLabel: "Lithuania", note: "insert" },
   { id: "fourteen-days", label: "14 Days Insert", shortLabel: "14 Days", note: "insert" },
-  { id: "sirens", label: "Sirens Insert", shortLabel: "Sirens", note: "insert" },
+  { id: "sirens", label: "Queen Kathleen Sirens Overlay", shortLabel: "Queen Kathleen", note: "Sirens" },
 ];
 
 function CueIcon({ icon }: { icon: Cue["icon"] }) {
@@ -150,6 +150,7 @@ export default function Home() {
     engine.stopStock();
     loopsRef.current = {};
     setActiveLoops({});
+    sendProjectionCommand("stop", undefined, "all local and scenery-level sounds");
     setLastCue("Stopped all sounds");
   };
 
@@ -289,8 +290,26 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="space-y-6">
-              {(Object.keys(categoryLabels) as Category[]).map((category) => {
+            <section className="mb-7 rounded-[2rem] border border-[rgba(236,190,120,0.28)] bg-[linear-gradient(135deg,rgba(220,174,89,0.16),rgba(154,57,33,0.12)_48%,rgba(0,0,0,0.24))] p-5 shadow-[0_28px_80px_rgba(0,0,0,0.22)]">
+              <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+                <div>
+                  <p className="font-display text-xs uppercase tracking-[0.28em] text-[var(--gold)]">Live Sirens Insert</p>
+                  <h3 className="mt-2 font-display text-3xl leading-none text-[var(--limestone)]">Queen Kathleen Animation</h3>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[rgba(247,224,185,0.68)]">
+                    Sends the centered projected-Kathleen cutout overlay to the projector while keeping the main scene underneath.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  className="h-14 rounded-2xl bg-[var(--gold)] px-6 font-display text-base text-[var(--urn-black)] hover:bg-[var(--rose)] md:min-w-56"
+                  onClick={() => sendProjectionCommand("insert", undefined, "Queen Kathleen Sirens overlay", "sirens")}
+                >
+                  <Play className="mr-2 h-4 w-4" /> Queen Kathleen
+                </Button>
+              </div>
+            </section>
+
+            {(Object.keys(categoryLabels) as Category[]).map((category) => {
                 const categoryCues = grouped[category] ?? [];
                 if (!categoryCues.length) return null;
                 return (
@@ -328,7 +347,6 @@ export default function Home() {
                   </section>
                 );
               })}
-            </div>
           </section>
         </div>
       </section>
